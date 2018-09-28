@@ -25,11 +25,10 @@ summary(bank.df)
 #b. NA values, calculate means of Age and Income columns, fill for NA values
 
 bank.df$X9Age <- ifelse(is.na(bank.df$X9Age), mean(bank.df$X9Age, na.rm=TRUE), bank.df$X9Age)
-bank.df$X9Age <- as.integer(bank.df$X9Age)
-
 bank.df$X9Inc <- ifelse(is.na(bank.df$X9Inc), mean(bank.df$X9Inc, na.rm=TRUE), bank.df$X9Inc)
+
+#c. Data type conversion, change Age and Income to integer from numeric
+
+bank.df$X9Age <- as.integer(bank.df$X9Age)
 bank.df$X9Inc <- as.integer(bank.df$X9Inc)
-
-#c. Data type conversion
-
 
