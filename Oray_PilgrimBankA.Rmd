@@ -1,0 +1,86 @@
+---
+title: 'Pilgrim Bank Part A: Debarati Mazumdar, Maura Oray'
+author: "Debarati Mazumdar, Maura Oray"
+date: "9/30/2018"
+output: html_document
+---
+
+## Introduction, describe objectives
+
+```{r}
+
+#2. Read in Data
+
+library(ggplot2)
+library(dplyr)
+library(readxl)
+library(forcats)
+library(questionr)
+
+bank <- read_excel("~/Desktop/BUS-256/MarketingAnalytics/608715-XLS-ENG.xls", sheet = 2)
+
+#a. Columns and rows
+
+dim(bank) #31634 rows, 11 columns
+
+#b.Select 1999 columns
+
+bank.df <- bank[-c(8:9, 11)] 
+
+```
+
+```{r}
+
+#3. Data Description & Cleaning
+
+#a. Conceptual measure types
+
+summary(bank.df)
+str(bank.df)
+
+```
+Before manipulating the data, we checked to see the variable types. All variables in the data set were numeric, but the "conceptual" measure types are as follows: ID (discrete, nominal), Profit (continuous, ratio), Online (discrete, nominal), Age (discrete, ordinal), Income (discrete, ordinal), Tenure (continuous, ratio), District (discrete, nominal), and Bill Pay (discrete, nominal).  
+
+```{r}
+
+#3b-c. NA values and Variable Types
+
+bank.df[3:5] <- lapply(bank.df[3:5], factor)
+bank.df[7:8] <- lapply(bank.df[7:8], factor)
+
+bank.df$`9Age`= fct_explicit_na(bank.df$`9Age`, na_level = "8")
+bank.df$`9Inc`= fct_explicit_na(bank.df$`9Inc`, na_level = "10")
+
+#3d. Frequency Tables
+
+table(bank.df$`9Online`, bank.df$`9Billpay`)
+
+prop <- table(bank.df$`9Online`, bank.df$`9Billpay`) %>%
+  prop.table()
+prop
+
+#3e. Subscription_grp
+
+bank.df %>%
+  mutate(subscription_grp = )
+
+```
+As was shown in part 2, all variables were originally stored as numeric. Changing variables such as Online, Age, Income, District, and Bill Pay to factors will make for easier analysis. We also decided to use "8" as the NA category for Age and "10" for the NA category for Income.
+
+In the frequency table, the Online variable is expressed as the rows and the Bill Pay variable as the columns. Unsurprisingly, the majority of customers do not have online banking or bill pay, as is shown by the proportion table (nearly 88%). This seems to suggest that customers who fall in this category are more "traditional" customers, in that they probably visit their local branch to do in-person banking, and are more averse to "new" banking such as online banking and automatic bill pay.
+
+Only about 11% of customers had online banking but not bill pay, suggesting that these customers are most likely amenable to new banking technology, but haven't quite moved to bill pay yet. Because bill pay is most likely online, it is possible that these customers have not yet explored this banking option. Only about 2% of customers had both bill pay and online banking. 
+
+The most interesting observation of the proportion table was that not one customer had bill pay but NOT online banking. This makes sense as bill pay would be a proponent of online banking - meaning that one has to have online banking in order to have bill pay. 
+
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

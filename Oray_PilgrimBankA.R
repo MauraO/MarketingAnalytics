@@ -2,10 +2,11 @@
 
 library(ggplot2)
 library(dplyr)
+library(readxl)
 
 #Prepare
 
-bank <- read.csv("~/Desktop/BUS-256/PilgrimBankA.csv")
+bank <- read_excel("~/Desktop/BUS-256/MarketingAnalytics/608715-XLS-ENG.xls", sheet = 2)
 
 #1. Describe objectives
 
@@ -23,6 +24,8 @@ bank.df <- bank[-c(8:9, 11)]
 summary(bank.df)
 
 #b. NA values, calculate means of Age and Income columns, fill for NA values
+
+na_values <- is.na(bank.df)
 
 bank.df$X9Age <- ifelse(is.na(bank.df$X9Age), mean(bank.df$X9Age, na.rm=TRUE), bank.df$X9Age)
 bank.df$X9Inc <- ifelse(is.na(bank.df$X9Inc), mean(bank.df$X9Inc, na.rm=TRUE), bank.df$X9Inc)
