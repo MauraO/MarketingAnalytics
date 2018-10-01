@@ -66,7 +66,6 @@ prop
 bank.df %>%
 mutate(subscription_grp = case_when(`9Online` == '0' & `9Billpay` == '0' ~ "1",
 `9Online` == '1' & `9Billpay` == '0' ~ "2", `9Online` == '1' & `9Billpay` == '1' ~ "3"))
-
 ```
 As was shown in part 2, all variables were originally stored as numeric. Changing variables such as Online, Age, Income, District, and Bill Pay to factors will make for easier analysis. We also decided to use "8" as the NA category for Age and "10" for the NA category for Income.
 
