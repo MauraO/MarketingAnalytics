@@ -62,7 +62,7 @@ prop
 #3e. Subscription_grp
 
 bank.df %>%
-  mutate(subscription_grp = )
+  mutate(subscription_grp =  )
 
 ```
 As was shown in part 2, all variables were originally stored as numeric. Changing variables such as Online, Age, Income, District, and Bill Pay to factors will make for easier analysis. We also decided to use "8" as the NA category for Age and "10" for the NA category for Income.
