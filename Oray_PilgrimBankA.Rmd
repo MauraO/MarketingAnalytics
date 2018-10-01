@@ -37,7 +37,7 @@ bank.df <- bank[-c(8:9, 11)]
 #a. Conceptual measure types
 
 summary(bank.df)
-str(bank.df)
+str(bank.df) 
 
 ```
 Before manipulating the data, we checked to see the variable types. All variables in the data set were numeric, but the "conceptual" measure types are as follows: ID (discrete, nominal), Profit (continuous, ratio), Online (discrete, nominal), Age (discrete, ordinal), Income (discrete, ordinal), Tenure (continuous, ratio), District (discrete, nominal), and Bill Pay (discrete, nominal).  
