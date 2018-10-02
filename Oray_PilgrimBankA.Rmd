@@ -63,9 +63,10 @@ prop
 
 #3e. New variable: subscription_grp
 
-bank.df %>%
+bank.df <- bank.df %>%
 mutate(subscription_grp = case_when(`9Online` == '0' & `9Billpay` == '0' ~ "1",
 `9Online` == '1' & `9Billpay` == '0' ~ "2", `9Online` == '1' & `9Billpay` == '1' ~ "3"))
+
 ```
 As was shown in part 2, all variables were originally stored as numeric. Changing variables such as Online, Age, Income, District, and Bill Pay to factors will make for easier analysis. We also decided to use "8" as the NA category for Age and "10" for the NA category for Income.
 
@@ -81,3 +82,46 @@ Finally, we created 3 categories for the new variable "subscription_grp". The ca
 
 #4. Visualizations
 
+#Income Distribution & Profitability
+
+ggplot(bank.df, aes(x=`9Inc`, y=`9Profit`)) +
+  geom_boxplot() +
+  xlab("Income Category") +
+  ylab("Profitability") +
+  ggtitle("Income and Profitability Distribution")
+
+#Age Distribution & Profitability
+
+ggplot(bank.df, aes(x=`9Age`, y=`9Profit`)) +
+  geom_boxplot() +
+  xlab("Age Category") +
+  ylab("Profitability") +
+  ggtitle("Age and Profitability Distribution")
+
+#District Distribution & Profitability
+
+ggplot(bank.df, aes(x=`9District`, y=`9Profit`)) +
+  geom_boxplot() +
+  xlab("District") +
+  ylab("Profitability") +
+  ggtitle("District and Profitability Distribution")
+
+#Tenure v. Profitability
+
+ggplot(bank.df, aes(x=`9Tenure`, y=`9Profit`)) +
+  geom_point() +
+  xlab("Tenure") +
+  ylab("Profitability") +
+  ggtitle("Tenure and Profitability Distribution")
+
+#Subscription Group & Profitability
+
+ggplot(bank.df, aes(x=subscription_grp, y=`9Profit`)) +
+  geom_boxplot() +
+  xlab("Subscription Group") +
+  ylab("Profitability") +
+  ggtitle("Subscription Group and Profitability Distribution")
+
+```
+
+testing
