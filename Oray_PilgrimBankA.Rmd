@@ -16,7 +16,7 @@ library(ggplot2)
 library(dplyr)
 library(readxl)
 library(forcats)
-library(questionr)
+library(gridExtra)
 
 bank <- read_excel("~/Desktop/BUS-256/MarketingAnalytics/608715-XLS-ENG.xls", sheet = 2)
 
@@ -49,9 +49,9 @@ Before manipulating the data, we checked to see the variable types. All variable
 bank.df[3:5] <- lapply(bank.df[3:5], factor)
 bank.df[7:8] <- lapply(bank.df[7:8], factor)
 
-bank.df$`9Age`= fct_explicit_na(bank.df$`9Age`, na_level = "8") #Adding level '8' as category for NA age
+bank.df$`9Age`= fct_explicit_na(bank.df$`9Age`, na_level = "0") #Adding level '0' as category for NA age
 
-bank.df$`9Inc`= fct_explicit_na(bank.df$`9Inc`, na_level = "10") #Adding level '10' as category for NA income
+bank.df$`9Inc`= fct_explicit_na(bank.df$`9Inc`, na_level = "0") #Adding level '0' as category for NA income
 
 #3d. Frequency Tables
 
@@ -68,7 +68,7 @@ mutate(subscription_grp = case_when(`9Online` == '0' & `9Billpay` == '0' ~ "1",
 `9Online` == '1' & `9Billpay` == '0' ~ "2", `9Online` == '1' & `9Billpay` == '1' ~ "3"))
 
 ```
-As was shown in part 2, all variables were originally stored as numeric. Changing variables such as Online, Age, Income, District, and Bill Pay to factors will make for easier analysis. We also decided to use "8" as the NA category for Age and "10" for the NA category for Income.
+As was shown in part 2, all variables were originally stored as numeric. Changing variables such as Online, Age, Income, District, and Bill Pay to factors will make for easier analysis. We also decided to use "0" as the NA category for both Age and Income.
 
 In the frequency table, the Online variable is expressed as the rows and the Bill Pay variable as the columns. Unsurprisingly, the majority of customers do not have online banking or bill pay, as is shown by the proportion table (nearly 88%). This seems to suggest that customers who fall in this category are more "traditional" customers, in that they probably visit their local branch to do in-person banking, and are more averse to "new" banking such as online banking and automatic bill pay.
 
@@ -84,26 +84,32 @@ Finally, we created 3 categories for the new variable "subscription_grp". The ca
 
 #Income Distribution & Profitability
 
-ggplot(bank.df, aes(x=`9Inc`, y=`9Profit`)) +
-  geom_boxplot() +
+inc_dist <- ggplot(bank.df, aes(x=`9Inc`, y=`9Profit`, fill=`9Inc`)) +
+  geom_boxplot()+
+  scale_y_log10()+
   xlab("Income Category") +
   ylab("Profitability") +
+  theme(legend.position = "none")+
   ggtitle("Income and Profitability Distribution")
 
 #Age Distribution & Profitability
 
-ggplot(bank.df, aes(x=`9Age`, y=`9Profit`)) +
+age_dist <- ggplot(bank.df, aes(x=`9Age`, y=`9Profit`, fill=`9Age`)) +
   geom_boxplot() +
+  scale_y_log10()+
   xlab("Age Category") +
   ylab("Profitability") +
+  theme(legend.position = "none")+
   ggtitle("Age and Profitability Distribution")
 
 #District Distribution & Profitability
 
-ggplot(bank.df, aes(x=`9District`, y=`9Profit`)) +
+district_dist <- ggplot(bank.df, aes(x=`9District`, y=`9Profit`, fill=`9District`)) +
   geom_boxplot() +
+  scale_y_log10()+
   xlab("District") +
   ylab("Profitability") +
+  theme(legend.position = "none")+
   ggtitle("District and Profitability Distribution")
 
 #Tenure v. Profitability
@@ -116,10 +122,26 @@ ggplot(bank.df, aes(x=`9Tenure`, y=`9Profit`)) +
 
 #Subscription Group & Profitability
 
-ggplot(bank.df, aes(x=subscription_grp, y=`9Profit`)) +
+sub_dist <- ggplot(bank.df, aes(x=subscription_grp, y=`9Profit`, fill=subscription_grp)) +
   geom_boxplot() +
+  scale_y_log10()+
   xlab("Subscription Group") +
   ylab("Profitability") +
+  theme(legend.position = "none")+
   ggtitle("Subscription Group and Profitability Distribution")
 
+#Arrange plots
+
+grid.arrange(inc_dist, age_dist, district_dist, sub_dist)
+
 ```
+The above visualizations show that profitability increases especially with income and age. In the income boxplot visualization, the highest median value is in category 9, which is income greater than $125,000, and in the age visualization category 7 has the highest median, which is 65+. Both income and age show quite a few outliers, so focusing on the median is the most appropriate for profitability. Note that we used a log transformation because the profitability spread is quite large and the original plots included a lot of outliers. 
+
+Interestingly, there is not a huge difference in profitability for districts, but district 1200 has the highest median and highest third quartile, representing higher profitability. Tenure and subscription group show interesting results. The tenure scatterplot suggests that profitability is not dependent upon tenure. Subscription group, however, suggests that group 3 (customers who have both online banking and bill pay) are the most profitable, as seen by the higher median, and higher first and second quartiles. In our opinion, Pilgrim Bank should focus more on this group.
+
+```{r}
+
+#5. Statistical Analyses
+
+#histogram for mean
+#Tests - t-test, z-test
