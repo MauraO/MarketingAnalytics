@@ -123,5 +123,3 @@ ggplot(bank.df, aes(x=subscription_grp, y=`9Profit`)) +
   ggtitle("Subscription Group and Profitability Distribution")
 
 ```
-
-testing
