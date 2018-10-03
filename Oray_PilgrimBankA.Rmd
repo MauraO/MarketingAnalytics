@@ -165,7 +165,8 @@ hist(sample_dist, main = "Histogram of Sample Profitability", xlab = "Profitabil
 #Statistical Tests
 
 #T-Test
-\
+
+t.test(bank.df$`9Profit`, bank.df.mean$profit_mean)
 
 
 ```
