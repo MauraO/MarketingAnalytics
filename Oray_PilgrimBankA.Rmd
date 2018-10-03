@@ -149,7 +149,8 @@ Interestingly, there is not a huge difference in profitability for districts, bu
 
 bank.df.mean <- bank.df %>%
   group_by(subscription_grp) %>%
-  summarise(mean(`9Profit`))
+  summarise(profit_mean = mean(`9Profit`), profit_sd = sd(`9Profit`))
+  
 
 bank.df.mean
 
@@ -164,7 +165,7 @@ hist(sample_dist, main = "Histogram of Sample Profitability", xlab = "Profitabil
 #Statistical Tests
 
 #T-Test
-
+\
 
 
 ```
