@@ -7,8 +7,20 @@ output: html_document
 
 ```{r}
 
-#1. Introduction (add intro)
+#Introduction
 
+```
+Alan Green is an analyst at Pilgrim Bank. He has been assigned the task of understanding the customer profitability for online Banking. The company has to choose one from either of the two objectives:
+
+1.	To Incentivize customers on usage of Online Banking 
+2.	To charge a premium fee for usage of Online channels
+
+For the analysis, Alan has been given the customer data for the year 1999, he needs to understand whether customer profitability is a direct correlation of only the balance in the account or there are other factors like fees, Interest from loans and Cost to serve which play an important role while calculating profitability. Also, the fact that increase number of transactions does not guarantee an increase in the overall account balance.
+
+He should also understand that with every new channel, there is an opportunity loss of the previously operational channels and this is increasing the overall cost structure of the bank. 
+Thus, he has a sample set of 30,000 customers and he knows the average profitability of customer who use and who do not use online banking. His task is to analyze the data and conclude which is correct for the whole customer data of 5 million.
+
+```{r}
 
 #2. Read in Data
 
@@ -20,21 +32,19 @@ library(gridExtra)
 
 bank <- read_excel("~/Desktop/BUS-256/MarketingAnalytics/608715-XLS-ENG.xls", sheet = 2)
 
-#a. Columns and rows
+#2a. Columns and rows
 
 dim(bank) #31634 rows, 11 columns
 
-#b.Select 1999 columns
+#2b.Select 1999 columns
 
-bank.df <- bank[-c(8:9, 11)] 
-
-```
-
-```{r}
+bank.df<- subset(bank, select = c( 1, 2,3,4,5,6,7,10))
+cols <-  c ("ID","Profit","OnlineBanking","Age","Inc","Tenure","District","Billpay") # column names have been changed for easier understanding 
+colnames(bank.df) <- cols
 
 #3. Data Description & Cleaning
 
-#a. Conceptual measure types
+#3a. Conceptual measure types
 
 summary(bank.df)
 str(bank.df) 
@@ -47,30 +57,35 @@ Before manipulating the data, we checked to see the variable types. All variable
 #3b-c. NA values and Variable Types
 
 bank.df[3:5] <- lapply(bank.df[3:5], factor)
-bank.df[7:8] <- lapply(bank.df[7:8], factor)
+bank.df[7] <- lapply(bank.df[7], factor)
 
-bank.df$`9Age`= fct_explicit_na(bank.df$`9Age`, na_level = "0") #Adding level '0' as category for NA age
+bank.df$Age= fct_explicit_na(bank.df$Age, na_level = "0") #Adding level '0' as category for NA age
 
-bank.df$`9Inc`= fct_explicit_na(bank.df$`9Inc`, na_level = "0") #Adding level '0' as category for NA income
+bank.df$Inc= fct_explicit_na(bank.df$Inc, na_level = "0") #Adding level '0' as category for NA income
 
 #3d. Frequency Tables
 
-table(bank.df$`9Online`, bank.df$`9Billpay`)
+a = table(bank.df$OnlineBanking, bank.df$Billpay)
+t = as.data.frame(a)
+names(t)[1] = 'OnlineBanking' #header for first column
+names(t)[2] = 'Billpay' #header for second column
 
-prop <- table(bank.df$`9Online`, bank.df$`9Billpay`) %>%
+t
+
+prop <- table(bank.df$OnlineBanking, bank.df$Billpay) %>%
   prop.table()
-prop
+prop #Create a proportion table to view percentages
 
 #3e. New variable: subscription_grp
 
 bank.df <- bank.df %>%
-mutate(subscription_grp = case_when(`9Online` == '0' & `9Billpay` == '0' ~ "1",
-`9Online` == '1' & `9Billpay` == '0' ~ "2", `9Online` == '1' & `9Billpay` == '1' ~ "3"))
+mutate(subscription_grp = case_when(OnlineBanking == '0' & Billpay == '0' ~ "1",
+OnlineBanking == '1' & Billpay == '0' ~ "2", OnlineBanking == '1' & Billpay == '1' ~ "3"))
 
 ```
-As was shown in part 2, all variables were originally stored as numeric. Changing variables such as Online, Age, Income, District, and Bill Pay to factors will make for easier analysis. We also decided to use "0" as the NA category for both Age and Income.
+As was shown in part 2, all variables were originally stored as numeric. Changing variables such as Online, Age, Income and District to factors will make for easier analysis. We also decided to use "0" as the NA category for both Age and Income.
 
-In the frequency table, the Online variable is expressed as the rows and the Bill Pay variable as the columns. Unsurprisingly, the majority of customers do not have online banking or bill pay, as is shown by the proportion table (nearly 88%). This seems to suggest that customers who fall in this category are more "traditional" customers, in that they probably visit their local branch to do in-person banking, and are more averse to "new" banking such as online banking and automatic bill pay.
+In the frequency table, you can see both Online Banking and Bill Pay combinations. Unsurprisingly, the majority of customers do not have online banking or bill pay, as is shown by the proportion table (nearly 88%). This seems to suggest that customers who fall in this category are more "traditional" customers, in that they probably visit their local branch to do in-person banking, and are more averse to "new" banking such as online banking and automatic bill pay.
 
 Only about 11% of customers had online banking but not bill pay, suggesting that these customers are most likely amenable to new banking technology, but haven't quite moved to bill pay yet. Because bill pay is most likely online, it is possible that these customers have not yet explored this banking option. Only about 2% of customers had both bill pay and online banking. 
 
@@ -84,7 +99,7 @@ Finally, we created 3 categories for the new variable "subscription_grp". The ca
 
 #Income Distribution & Profitability
 
-inc_dist <- ggplot(bank.df, aes(x=`9Inc`, y=`9Profit`, fill=`9Inc`)) +
+inc_dist <- ggplot(bank.df, aes(x=Inc, y=Profit, fill=Inc)) +
   geom_boxplot()+
   scale_y_log10() +
   xlab("Income Category") +
@@ -94,7 +109,7 @@ inc_dist <- ggplot(bank.df, aes(x=`9Inc`, y=`9Profit`, fill=`9Inc`)) +
 
 #Age Distribution & Profitability
 
-age_dist <- ggplot(bank.df, aes(x=`9Age`, y=`9Profit`, fill=`9Age`)) +
+age_dist <- ggplot(bank.df, aes(x=Age, y=Profit, fill=Age)) +
   geom_boxplot() +
   scale_y_log10()+
   xlab("Age Category") +
@@ -104,7 +119,7 @@ age_dist <- ggplot(bank.df, aes(x=`9Age`, y=`9Profit`, fill=`9Age`)) +
 
 #District Distribution & Profitability
 
-district_dist <- ggplot(bank.df, aes(x=`9District`, y=`9Profit`, fill=`9District`)) +
+district_dist <- ggplot(bank.df, aes(x=District, y=Profit, fill=District)) +
   geom_boxplot() +
   scale_y_log10()+
   xlab("District") +
@@ -114,16 +129,17 @@ district_dist <- ggplot(bank.df, aes(x=`9District`, y=`9Profit`, fill=`9District
 
 #Tenure v. Profitability
 
-ggplot(bank.df, aes(x=`9Tenure`, y=`9Profit`)) +
+ggplot(bank.df, aes(x=Tenure, y=Profit)) +
   geom_point() +
   geom_smooth()+
+  scale_y_log10()+
   xlab("Tenure") +
   ylab("Profitability") +
   ggtitle("Tenure and Profitability Distribution")
 
 #Subscription Group & Profitability
 
-sub_dist <- ggplot(bank.df, aes(x=subscription_grp, y=`9Profit`, fill=subscription_grp)) +
+sub_dist <- ggplot(bank.df, aes(x=subscription_grp, y=Profit, fill=subscription_grp)) +
   geom_boxplot() +
   scale_y_log10()+
   xlab("Subscription Group") +
@@ -136,7 +152,6 @@ sub_dist <- ggplot(bank.df, aes(x=subscription_grp, y=`9Profit`, fill=subscripti
 grid.arrange(inc_dist, age_dist, district_dist, sub_dist)
 
 ```
-<<<<<<< HEAD
 The above visualizations show that profitability increases especially with income and age. In the income boxplot visualization, the highest median value is in category 9, which is income greater than $125,000, and in the age visualization category 7 has the highest median, which is 65+. Both income and age show quite a few outliers, so focusing on the median is the most appropriate for profitability. Note that we used a log transformation because the profitability spread is quite large and the original plots included a lot of outliers. 
 
 Interestingly, there is not a huge difference in profitability for districts, but district 1200 has the highest median and highest third quartile, representing higher profitability. Tenure and subscription group show interesting results. The tenure scatterplot suggests that profitability is not dependent upon tenure. Subscription group, however, suggests that group 3 (customers who have both online banking and bill pay) are the most profitable, as seen by the higher median, and higher first and second quartiles. In our opinion, Pilgrim Bank should focus more on this group.
@@ -145,28 +160,55 @@ Interestingly, there is not a huge difference in profitability for districts, bu
 
 #5. Statistical Analyses
 
-#Mean profitability for each subscription group
+#Mean profitability and standard deviation for each subscription group
 
 bank.df.mean <- bank.df %>%
   group_by(subscription_grp) %>%
-  summarise(profit_mean = mean(`9Profit`), profit_sd = sd(`9Profit`))
+  summarise(profit_mean = mean(Profit), profit_sd = sd(Profit))
   
-
 bank.df.mean
 
 #Distribution of overall profitability (sample)
 
 n = 10000
-sample_dist = sample(bank.df$`9Profit`, n)
+sample_dist = sample(bank.df$Profit, n)
 mean(sample_dist)
 sd(sample_dist)
 hist(sample_dist, main = "Histogram of Sample Profitability", xlab = "Profitability")
+
+sample_se = sd(sample_dist)/sqrt(n)
+sample_se
+
+sample.dist = NULL
+for(i in 1:10000){
+  sample.mean = sample(bank.df$Profit, n)
+  sample.dist[i] = mean(sample.mean)
+}
+hist(sample.dist, n = 100, col = "blue", main = "Histogram of 
+     Sampling Distribution", xlab = "Profitability")
+
+mean(sample.dist)
+sd(sample.dist)
+
+sample_example = sample(bank.df$Profit, n)
+conf.level = 0.95
+alpha = 1 - conf.level
+cutoff = 1 - alpha/2
+zscore = qnorm(cutoff)
+
+#Upper and lower limits
+
+lower.limit = mean(sample_example) - qnorm(cutoff)*sample_se
+lower.limit
+upper.limit = mean(sample_example) + qnorm(cutoff)*sample_se
+upper.limit
 
 #Statistical Tests
 
 #T-Test
 
-t.test(bank.df$`9Profit`, bank.df.mean$profit_mean)
+t.test(bank.df$Profit, mu=1.95) #One sample
+t.test(bank.df$Profit, bank.df.mean$profit_mean)
 
 
 ```
