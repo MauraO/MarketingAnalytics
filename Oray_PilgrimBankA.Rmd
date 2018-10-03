@@ -86,7 +86,7 @@ Finally, we created 3 categories for the new variable "subscription_grp". The ca
 
 inc_dist <- ggplot(bank.df, aes(x=`9Inc`, y=`9Profit`, fill=`9Inc`)) +
   geom_boxplot()+
-  scale_y_log10()+
+  scale_y_log10() +
   xlab("Income Category") +
   ylab("Profitability") +
   theme(legend.position = "none")+
@@ -116,6 +116,7 @@ district_dist <- ggplot(bank.df, aes(x=`9District`, y=`9Profit`, fill=`9District
 
 ggplot(bank.df, aes(x=`9Tenure`, y=`9Profit`)) +
   geom_point() +
+  geom_smooth()+
   xlab("Tenure") +
   ylab("Profitability") +
   ggtitle("Tenure and Profitability Distribution")
@@ -135,6 +136,7 @@ sub_dist <- ggplot(bank.df, aes(x=subscription_grp, y=`9Profit`, fill=subscripti
 grid.arrange(inc_dist, age_dist, district_dist, sub_dist)
 
 ```
+<<<<<<< HEAD
 The above visualizations show that profitability increases especially with income and age. In the income boxplot visualization, the highest median value is in category 9, which is income greater than $125,000, and in the age visualization category 7 has the highest median, which is 65+. Both income and age show quite a few outliers, so focusing on the median is the most appropriate for profitability. Note that we used a log transformation because the profitability spread is quite large and the original plots included a lot of outliers. 
 
 Interestingly, there is not a huge difference in profitability for districts, but district 1200 has the highest median and highest third quartile, representing higher profitability. Tenure and subscription group show interesting results. The tenure scatterplot suggests that profitability is not dependent upon tenure. Subscription group, however, suggests that group 3 (customers who have both online banking and bill pay) are the most profitable, as seen by the higher median, and higher first and second quartiles. In our opinion, Pilgrim Bank should focus more on this group.
@@ -143,5 +145,27 @@ Interestingly, there is not a huge difference in profitability for districts, bu
 
 #5. Statistical Analyses
 
-#histogram for mean
-#Tests - t-test, z-test
+#Mean profitability for each subscription group
+
+bank.df.mean <- bank.df %>%
+  group_by(subscription_grp) %>%
+  summarise(mean(`9Profit`))
+
+bank.df.mean
+
+#Distribution of overall profitability (sample)
+
+n = 10000
+sample_dist = sample(bank.df$`9Profit`, n)
+mean(sample_dist)
+sd(sample_dist)
+hist(sample_dist, main = "Histogram of Sample Profitability", xlab = "Profitability")
+
+#Statistical Tests
+
+#T-Test
+
+
+
+```
+
