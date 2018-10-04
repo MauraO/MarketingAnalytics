@@ -77,10 +77,15 @@ bank.df <- bank.df %>%
 mutate(subscription_grp = case_when(OnlineBanking == '0' & Billpay == '0' ~ "1",
 OnlineBanking == '1' & Billpay == '0' ~ "2", OnlineBanking == '1' & Billpay == '1' ~ "4"))
 ```
-For the missing data we created a category named ‘0’ for each of the columns (Age, Income). The same could have been checked for null hypothesis and then replaced with the mean for the data.
-We have converted columns – Online banking, Age and Income as Factor Variables for an easy statistical analysis, since those variables are categorical.
-The two-way frequency table in count shows us that, 27,780 customers do not use either online banking or bill pay which constitutes 88% of the total data, customers who have either are a total of 3326 and only 528 customers who do both online banking and bill pay. Thus, it is evident that the bank has a majority of customers who still bank the traditional way.
-For the new variable subscription group, we have 4 categories named – 1 – customers who do neither, 2 – customers who are active on Online banking only, and 3 - customers who are active on Bill Pay only – we actually removed this category since this has zero customers 4 – customers who are active on both the channels.
+As was shown in part 2, all variables were originally stored as numeric. Changing variables such as Age, Income and District to factors will make for easier analysis. These variables are also categorical, so we can store them as factors. We also decided to use "0" as the NA category for both Age and Income.
+
+In the frequency table, you can see both Online Banking and Bill Pay combinations. Unsurprisingly, the majority of customers do not have online banking or bill pay, as is shown by the proportion table (nearly 88%). This seems to suggest that customers who fall in this category are more "traditional" customers, in that they probably visit their local branch to do in-person banking, and are more averse to "new" banking such as online banking and automatic bill pay.
+
+Only about 11% of customers had online banking but not bill pay, suggesting that these customers are most likely amenable to new banking technology, but haven't quite moved to bill pay yet. Because bill pay is most likely online, it is possible that these customers have not yet explored this banking option. Only about 2% of customers had both bill pay and online banking. 
+
+The most interesting observation of the proportion table was that not one customer had bill pay but NOT online banking. This makes sense as bill pay would be a proponent of online banking - meaning that one has to have online banking in order to have bill pay. 
+
+Finally, we created 3 categories for the new variable "subscription_grp". The categories were: "1": customers who do not have online banking or bill pay, "2": customers who have online banking but not bill pay, and "3": customers who have both bill pay and online banking.
 
 ```{r}
 #4. Visualizations
