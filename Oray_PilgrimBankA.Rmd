@@ -232,6 +232,6 @@ t.test(bank.df$Profit, bank.df.mean$profit_mean)
 ```
 We first decided to calculate the mean and standard deviation of profitability of each subscription group, in order to see the spread and which category is the most profitable. It is even more clear to see in the above table that the highest profitability comes from subscription group 3 (has online banking and bill pay), which we saw above in the boxplot visualization. 
 
-In the above histogram, we took a sample of the data set profitability (10,000). The visualization shows a right skew, meaning that the majority of the profitability hovers around zero, which corrorborates with Green's findings that the majority of profit came from a small number of customers.
+In the above histogram, we took a sample of the data set profitability (10,000). The visualization shows a right skew, meaning that the majority of the profitability hovers around zero, which corroborates with Green's findings that the majority of profit came from a small number of customers.
 
 We then decided to take the mean of another profitability sample, which resulted in a normal distribution. 
