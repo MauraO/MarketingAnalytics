@@ -136,10 +136,12 @@ district_dist <- ggplot(bank.df, aes(x=District, y=Profit, fill=District)) +
 
 #Tenure v. Profitability
 
-ggplot(bank.df, aes(x=Tenure, y=Profit)) +
+ggplot(bank.df, aes(x=Tenure, y=Profit, color = Profit)) +
   geom_point() +
   geom_smooth()+
   scale_y_log10()+
+  scale_x_log10()+
+  geom_point(shape=16, size=1, show.legend = FALSE, alpha=0.5) +
   xlab("Tenure") +
   ylab("Profitability") +
   ggtitle("Tenure and Profitability Distribution")
@@ -225,8 +227,21 @@ upper.limit
 
 #T-Test
 
-t.test(bank.df$Profit, mu=1.95) #One sample
+t.test(bank.df$Profit, mu=112.85) #One sample
 t.test(bank.df$Profit, bank.df.mean$profit_mean)
+
+#
+
+sub_tenure_profit = bank.df %>%
+  filter(subscription_grp != "2")
+
+t.test(sub_tenure_profit[sub_tenure_profit$subscription_grp == "1",]$Profit,
+       sub_tenure_profit[sub_tenure_profit$subscription_grp == "3",]$Profit,
+       paired=FALSE)
+
+t.test(sub_tenure_profit[sub_tenure_profit$subscription_grp == "1",]$Profit,
+       sub_tenure_profit[sub_tenure_profit$subscription_grp == "3",]$Profit,
+       paired=FALSE, alternative = "greater")
 
 
 ```
