@@ -173,6 +173,7 @@ n = 10000
 sample_dist = sample(bank.df$Profit, n)
 mean(sample_dist)
 sd(sample_dist)
+
 hist(sample_dist, main = "Histogram of Sample Profitability", xlab = "Profitability")
 
 sample_se = sd(sample_dist)/sqrt(n)
@@ -183,8 +184,7 @@ for(i in 1:10000){
   sample.mean = sample(bank.df$Profit, n)
   sample.dist[i] = mean(sample.mean)
 }
-hist(sample.dist, n = 100, col = "blue", main = "Histogram of 
-     Sampling Distribution", xlab = "Profitability")
+hist(sample.dist, n = 100, col = "blue", main = "Histogram of Mean Sampling Distribution", xlab = "Profitability")
 
 mean(sample.dist)
 sd(sample.dist)
