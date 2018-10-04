@@ -15,10 +15,9 @@ Alan Green is an analyst at Pilgrim Bank. He has been assigned the task of under
 1.	To Incentivize customers on usage of Online Banking 
 2.	To charge a premium fee for usage of Online channels
 
-For the analysis, Alan has been given the customer data for the year 1999, he needs to understand whether customer profitability is a direct correlation of only the balance in the account or there are other factors like fees, Interest from loans and Cost to serve which play an important role while calculating profitability. Also, the fact that increase number of transactions does not guarantee an increase in the overall account balance.
+For the analysis, Alan has been given the customer data for the year 1999, he needs to understand whether customer profitability is a direct correlation between only the balance in the account or if there are other factors like fees, interest from loans and cost to serve which play an important role in calculating profitability. Also, the fact that an increase in number of transactions does not guarantee an increase in the overall account balance.
 
-He should also understand that with every new channel, there is an opportunity loss of the previously operational channels and this is increasing the overall cost structure of the bank. 
-Thus, he has a sample set of 30,000 customers and he knows the average profitability of customer who use and who do not use online banking. His task is to analyze the data and conclude which is correct for the whole customer data of 5 million.
+He should also understand that with every new channel, there is an opportunity loss of the previously operational channels and this is increasing the overall cost structure of the bank. Thus, he has a sample set of 30,000 customers and he knows the average profitability of customers who use and who do not use online banking. His task is to analyze the data and conclude which is correct for the whole customer data set of 5 million.
 
 ```{r}
 
