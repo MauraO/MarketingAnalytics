@@ -55,7 +55,7 @@ Before manipulating the data, we checked to see the variable types. All variable
 
 #3b-c. NA values and Variable Types
 
-bank.df[3:5] <- lapply(bank.df[3:5], factor)
+bank.df[4:5] <- lapply(bank.df[4:5], factor)
 bank.df[7] <- lapply(bank.df[7], factor)
 
 bank.df$Age= fct_explicit_na(bank.df$Age, na_level = "0") #Adding level '0' as category for NA age
@@ -82,7 +82,7 @@ mutate(subscription_grp = case_when(OnlineBanking == '0' & Billpay == '0' ~ "1",
 OnlineBanking == '1' & Billpay == '0' ~ "2", OnlineBanking == '1' & Billpay == '1' ~ "3"))
 
 ```
-As was shown in part 2, all variables were originally stored as numeric. Changing variables such as Online, Age, Income and District to factors will make for easier analysis. We also decided to use "0" as the NA category for both Age and Income.
+As was shown in part 2, all variables were originally stored as numeric. Changing variables such as Age, Income and District to factors will make for easier analysis. These variables are also categorical, so we can store them as factors. We also decided to use "0" as the NA category for both Age and Income.
 
 In the frequency table, you can see both Online Banking and Bill Pay combinations. Unsurprisingly, the majority of customers do not have online banking or bill pay, as is shown by the proportion table (nearly 88%). This seems to suggest that customers who fall in this category are more "traditional" customers, in that they probably visit their local branch to do in-person banking, and are more averse to "new" banking such as online banking and automatic bill pay.
 
