@@ -14,7 +14,24 @@ library(tidyverse)
 
 ebay <- read.csv("~/Desktop/BUS-256/MarketingAnalytics/eBayData.csv")
 
-eBay <- eBay %>%
+#a. Convert the date
+ebay$rDate <- as.Date(ebay$date, format="%m/%d/%y") 
+
+#Convert to Factors
+
+ebay[2:4] <- lapply(ebay[2:4], factor)
+
+#b. Treatment period date
+
+head(ebay)
+summary(ebay)
+
+ebay_treatment <- ebay %>%
+filter(ebay$isTreatmentPeriod == "1")
+
+sort(ebay_treatment$rDate, decreasing = FALSE)
+
+head(ebay_treatment) #Treatment start date is 5/22/2012
 
 ```
 
@@ -24,16 +41,32 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
+```{r}
+
+#c. Log Regression
+
+ebay_log = lm(log(revenue) ~ factor(isTreatmentGroup), data = ebay)
+summary(ebay_log)
+
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+```{r}
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+#Pre treatment regression
+
+ebay %>%
+filter(ebay$isTreatmentPeriod == "0")
+
+ebay_pre = lm(log(revenue) ~ factor(isTreatmentGroup), data = ebay)
+summary(ebay_pre)
+
+ebay %>%
+filter(ebay$isTreatmentPeriod == "1")
+
+ebay_pre = lm(log(revenue) ~ factor(isTreatmentGroup), data = ebay)
+summary(ebay_pre)
+
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
