@@ -19,19 +19,13 @@ ebay$rDate <- as.Date(ebay$date, format="%m/%d/%y")
 
 #Convert to Factors
 
-ebay[2:4] <- lapply(ebay[2:4], factor)
+ebay[2:4] <- lapply(ebay[2:4], factor) #Convert DMA, isTreatmentPeriod, and isTreatmentGroup to factors
 
 #b. Treatment period date
 
-head(ebay)
+subset(ebay[order(ebay$rDate), ],isTreatmentPeriod == "1") #Treatment start date is 5/22/2012
+
 summary(ebay)
-
-ebay_treatment <- ebay %>%
-filter(ebay$isTreatmentPeriod == "1")
-
-sort(ebay_treatment$rDate, decreasing = FALSE)
-
-head(ebay_treatment) #Treatment start date is 5/22/2012
 
 ```
 
@@ -44,6 +38,11 @@ When you click the **Knit** button a document will be generated that includes bo
 ```{r}
 
 #c. Log Regression
+
+#Control group (0), Treatment (1). Treatment shown ads BEFORE treatment period and NOT after (0). Control group shown ads before and after.
+# Hypothesis: Revenue will decrease from the treatment group after the treatment period ends. We hypothesize that removing ads will lead to a decrease in ad revenue.
+#Combinations: 0/0 (control, before) 0/1 (control, after)
+# 1/0 (treatment, before) 1/1 (treatment, after)
 
 ebay_log = lm(log(revenue) ~ factor(isTreatmentGroup), data = ebay)
 summary(ebay_log)
