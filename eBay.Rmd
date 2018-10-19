@@ -44,26 +44,17 @@ When you click the **Knit** button a document will be generated that includes bo
 #Combinations: 0/0 (control, before) 0/1 (control, after)
 # 1/0 (treatment, before) 1/1 (treatment, after)
 
-ebay_log = lm(log(revenue) ~ factor(isTreatmentGroup), data = ebay)
+ebay_log = lm(log(revenue) ~ factor(isTreatmentGroup) + factor(isTreatmentPeriod), data = ebay)
 summary(ebay_log)
 
 ```
-
+The p-value for the treatment period is very significant (0.00821) with a 99% percent confidence interval. 
 
 ```{r}
 
 #Pre treatment regression
 
-ebay %>%
-filter(ebay$isTreatmentPeriod == "0")
-
-ebay_pre = lm(log(revenue) ~ factor(isTreatmentGroup), data = ebay)
-summary(ebay_pre)
-
-ebay %>%
-filter(ebay$isTreatmentPeriod == "1")
-
-ebay_pre = lm(log(revenue) ~ factor(isTreatmentGroup), data = ebay)
+ebay_pre = lm(log(revenue) ~ factor(isTreatmentGroup) + factor(isTreatmentPeriod=="0"), data = ebay)
 summary(ebay_pre)
 
 ```
