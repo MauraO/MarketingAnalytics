@@ -27,6 +27,18 @@ subset(ebay[order(ebay$rDate), ],isTreatmentPeriod == "1") #Treatment start date
 
 summary(ebay)
 
+#Frequency Table
+
+a = table(ebay$isTreatmentGroup, ebay$isTreatmentPeriod)
+t = as.data.frame(a)
+names(t)[1] = 'Treatment Group' #header for first column
+names(t)[2] = 'Treatment Period' #header for second column
+t
+
+prop = table(ebay$isTreatmentGroup, ebay$isTreatmentPeriod)
+prop.table(prop)
+
+
 ```
 
 ## R Markdown
@@ -49,6 +61,12 @@ summary(ebay_log)
 
 ```
 The p-value for the treatment period is very significant (0.00821) with a 99% percent confidence interval. 
+
+The intercept represents the revenue of the control group in the before period, which is a starting point of $10.96. As shown in the previous frequency and proportion tables, there are 3468 members in this group, or 14.6% of the entire group (control and treatment before and after). 
+
+The incercept for the treatment group before the treatment (1/0) is $10.95 (intercept minus "isTreatmentGroup1", 10.95 - 0.01047). This is a slightly lower intercept than the control group, suggesting that the treatment group begins with slightly less ad revenue. However, as shown by the insignificant p-value (0.53), we can deduce that the difference is not meaningful. 
+
+The intercept for the treatment group during the treatment period is $10.91 (treatment before period - treatment after: 10.95 - 0.42). Additionally, with a very significant p-value of (0.00821) at the 99% confidence interval level, we see that removing ads may play a factor in decreasing revenue.
 
 ```{r}
 
