@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(ggplot2)
 library(tidyverse)
-library(RATest)
+library(lmPerm)
 
 ebay <- read.csv("~/Desktop/BUS-256/MarketingAnalytics/eBayData.csv")
 
@@ -57,6 +57,10 @@ When you click the **Knit** button a document will be generated that includes bo
 #Combinations: 0/0 (control, before) 0/1 (control, after)
 # 1/0 (treatment, before) 1/1 (treatment, after)
 
+ebay_log = lm(log(revenue) ~ factor(isTreatmentGroup) + factor(isTreatmentPeriod), data = ebay)
+summary(ebay_log)
+
+
 ```
 The p-value for the treatment period is very significant (0.00821) with a 99% percent confidence interval. 
 
@@ -73,12 +77,17 @@ The intercept for the treatment group during the treatment period is $10.91 (tre
 ebay_pre = lm(log(revenue) ~ factor(isTreatmentGroup) + factor(isTreatmentPeriod=="0"), data = ebay)
 summary(ebay_pre)
 
-library(lmPerm)
-
 ebay_log_p = lmp(log(revenue) ~ factor(isTreatmentGroup) + factor(isTreatmentPeriod), data = ebay)
 summary(ebay_log_p)
 
 
 ```
+```{r}
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+#Regression with DMA
+
+ebay_dm = lm(log(revenue) ~ factor(isTreatmentGroup) + factor(dma), data = ebay)
+summary(ebay_dm)
+
+```
+
