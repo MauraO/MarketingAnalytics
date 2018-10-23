@@ -8,7 +8,7 @@ output:
   html_document: default
 ---
 
-```{r setup, include=FALSE}
+```{r results='hide',message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
 library(dplyr)
@@ -19,8 +19,8 @@ library(randomizeR)
 ```
 
 
-```{r pressure, echo=FALSE}
-ebay<- read.csv("~/Desktop/Fall 2018/Marketing Analytics /CASE 1/eBayData.csv")
+```{r results='hide',message=FALSE, warning=FALSE}
+ebay<- read.csv("~/Desktop/BUS-256/MarketingAnalytics/eBayData.csv")
 summary(ebay)
 str(ebay)
 dim(ebay)
@@ -30,21 +30,21 @@ dim(ebay)
 # Revenue is numerical. 
 ```
 
-```{r}
+```{r results='hide',message=FALSE, warning=FALSE}
 # a. Convert the Date Column 
 ebay$rDate <- as.Date(ebay$date, format="%m/%d/%y") 
 head(ebay)
 # the date column is changed into date type as the 6th new column 
 ```
 
-```{r}
+```{r results='hide',message=FALSE, warning=FALSE}
 # Convert the type into factors for statistical analysis for column  3 and 4 as for regression the categorical variables have to be factor variables.
 ebay[3:4] <- lapply(ebay[3:4], factor)
 is.factor(ebay$isTreatmentGroup) # check if the variable is factor
 is.factor(ebay$isTreatmentPeriod) # check if the variable is factor
 #b) Treatment Period Date start date 
-#ebay = subset(ebay[order(ebay$rDate), ],isTreatmentPeriod == "1") 
-#head(ebay)
+ebay_treatment = subset(ebay[order(ebay$rDate), ],isTreatmentPeriod == "1") 
+head(ebay_treatment)
 #Treatment start date is 5/22/2012 for the analysis
 
 ```
@@ -71,7 +71,8 @@ prop
 #Combinations: 0/0 (control, before) 0/1 (control, after)
 # 1/0 (treatment, before) 1/1 (treatment, after)
 ebay1<- ebay %>%
-filter(isTreatmentGroup == 1) 
+filter(isTreatmentGroup == 1)
+
 ebay_log <- lm(log(revenue) ~ isTreatmentPeriod, data = ebay1)
 summary(ebay_log)
 coef(summary(ebay_log))
@@ -83,6 +84,9 @@ coef(summary(ebay_log))
 # revenue keeping all the other factors constant.
 # The intercept 10.94 is true at 99% confidence , and 10.91 at a confidence of 90%
 # p value (< 0.05) , thus we can say that we should reject the NULL, and conclude that there is significant decrease in revenue once the ads are not shown to the group
+
+#Small decrease in revenue during treatment period (1) for treatment group (1). While this seems insignificant, we do not know the whole customer base population, so if there are a lot of customers, this revenue loss can add up. Also, we do not know the full effect of time - that is to say how this revenue decrease will add up over time. 
+
 ```
 
 ```{r}
@@ -94,33 +98,48 @@ ebay2<- ebay %>%
  filter(isTreatmentPeriod == 0)
 ebay_pre = lm(log(revenue) ~ isTreatmentGroup , data = ebay2)
 summary(ebay_pre)
-#anova( ebay_pre, ebay_log_p)
+
+
+#Null hypothesis is true, we do not reject because p-value is high
 ```
 
 ```{r}
 # e. post treatment data to check the effectiveness of ads with dma
 ebay$dma <- as.numeric(ebay$dma)
-ebay_dma = lm(log(revenue) ~  dma , data = ebay) # to discuss 
+
+ebay2 <- ebay %>%
+  filter(isTreatmentPeriod == 1) #13020 observations
+
+ebay_dma = lm(log(revenue) ~  dma + isTreatmentGroup, data = ebay2) # to discuss 
 summary(ebay_dma)
 
-ebay_dma1 = lm(log(revenue) ~ isTreatmentGroup  , data = ebay)
+ebay_dma1 = lm(log(revenue) ~ isTreatmentGroup, data = ebay2)
 summary(ebay_dma1)
 
-anova( ebay_dma , ebay_dma1)
+
+
 
 # For the analysis on revenue with Treatment group and dma, we see that intercept for treatment group 0 is 
 # 21.1 and for treatment group 1 is ( 21.1 - 0.013) = 21.08 which is almost the same. However there is no #significant difference when it come to studying the difference with log(dma). 
 # Both treatment group 0 and 1 behave the same way. 
 # ?????????
+# Maybe clustering would help? 
+# p value is very low, but coefficient also small (lots of scattered data - from DMA?)
+
 ```
 
 ```{r}
 # f) Log is taken for revenue as it reduced the skewness in the variables and the results. If we observe the min  is $367 and max value of revenue is $ 2601390. Thus we see a huge band and chances of data being skewed is likely. 
-# Alos if we take the regression with simple revenue the intercept value is very large and the p value is very large . This tends the analysis to be incorrect.
+# Alos if we take the regression with simple revenue the intercept value is very large and the p value is very large. This tends the analysis to be incorrect.
 
 # g) Effectiveness of Advertising - conclusion  
+
 
 
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+summary(ebay$dma)
+
+corr(ebay$rev)
