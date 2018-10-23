@@ -121,7 +121,7 @@ summary(ebay_dma1)
 
 # For the analysis on revenue with Treatment group and dma, we see that intercept for treatment group 0 is 
 # 21.1 and for treatment group 1 is ( 21.1 - 0.013) = 21.08 which is almost the same. However there is no #significant difference when it come to studying the difference with log(dma). 
-# Both treatment group 0 and 1 behave the same way. 
+# Both treatment group 0 and 1 behave the  same way. 
 # ?????????
 # Maybe clustering would help? 
 # p value is very low, but coefficient also small (lots of scattered data - from DMA?)
