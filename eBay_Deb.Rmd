@@ -8,13 +8,13 @@ output:
   word_document: default
 ---
 
-```{r results='hide', message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 **Introduction**
 
-```{r results='hide', message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 
 library(dplyr)
 library(ggplot2)
@@ -26,7 +26,7 @@ library(randomizeR)
 ```
 
 
-```{r results='hide', message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 
 setwd("~/Desktop/BUS-256/MarketingAnalytics") #Set the working directory for easier collaboration
 ebay <- read.csv("eBayData.csv")
@@ -40,7 +40,7 @@ Here we see that the data set has 5 variables with 23,730 observations. The mini
 In terms of the data types, date is a factor, DMA, isTreatmentPeriod and isTreatmentGroup are integers, and revenue is numerical.
 
 **a. Convert the Date Column and Transform Variables**
-```{r results='hide', message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 
 ebay$rDate <- as.Date(ebay$date, format="%m/%d/%y") 
 head(ebay)
@@ -54,7 +54,7 @@ In the above code, we added a column called 'rDate' and transformed the date fro
 We also decided to convert the Treatment Period and Treatment Group variables from integers to factors, because the variables are essentially categorical. Converting to factors will make for better statistical analysis and regression.
 
 **b. Determine Treatment Period start date**
-```{r results='hide', message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 
 ebay_treatment = subset(ebay[order(ebay$rDate),]) #order date
 head(ebay_treatment)
@@ -66,7 +66,7 @@ head(ebay_treatment1)
 We also found the treatment and pre-treatment periods. The pre-treatment period (0), where both groups were shown ads, starte on 04/01/2012, and the treatment period (1), where control group continued to see ads but the treatment group did not, started on 05/22/2012. Therefore, the treatment group viewed ads for approximately 7 weeks. 
 
 **Frequency Table**
-```{r results='hide', message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 
 a = table(ebay$isTreatmentGroup, ebay$isTreatmentPeriod)
 t = as.data.frame(a)
@@ -82,7 +82,7 @@ prop
 We decided to view the categorical data (treatment period and groups) as a frequency table for clearer understanding. As shown above, we can see that 14.6% of the population is in the control group/pre-treatment period (0/0), 17.8% is in the control group/treatment period (0/1), 30.5% is in the treatment group/pre-treatment period (1/0), and finally 37.1% is in the treatment group/treatment period (1/1). We can see that there is a data disparity in the division of groups, as the treatment group is larger.
 
 **c. Regression of Treatment Group and Revenue for pre and post treatment periods**
-```{r results='hide', message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 
 # Understanding the Notations:
 # Control Group (0)
@@ -103,7 +103,7 @@ After performing the regression, we see that the intercept for the group during 
 Thus, the interpretation is that for every one ad shown in the pre-treatment period there is $10.94 increase in revenue keeping all other factors constant. The intercept of 10.94 is true at the 99% confidence level, and 10.91 at the 90% confidence level. The p-value is signifcant (p < 0.05), thus we can say that we should reject the null hypothesis and conclude that there is a decrease in revenue once the ads are not shown to the group.
 
 **d. Randomization Test**
-```{r results='hide', message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 
 # NULL Hypothesis: Revenue for the Control Group is the same as for the Treatment Group during the Pre-Treatment period 
 # NULL Hypothesis: Revenue for the Control Group is the same as for the Treatment Group during the Treatment period 
@@ -129,7 +129,7 @@ The intercept slope for the Control Group for pre-treatment period is 10.96 and 
 
 We also see that the R-Square value is extremely small, indicating that there is poor goodness of fit, and that the values are scattered and do not fall on the regression slope line.
 
-```{r results='hide', message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 # e.) post treatment data to check the effectiveness of ads with and without DMA
 # Part I 
 ebay$dma <- as.numeric(ebay$dma)
@@ -147,7 +147,7 @@ summary(ebay_dma1)
 # This is pretty unusal but it is possible as even though there is an insignificant difference , this can multiply to a larger value when the population for the groups increase.
 ```
 
-```{r results='hide', message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 # f) Log is taken for revenue as it reduced the skewness in the variables and the results. If we observe the min  is $367 and max value of revenue is $ 2601390. Thus we see a huge band and chances of data being skewed is likely. 
 # Alos if we take the regression with simple revenue the intercept value is very large and the p value is very large . This tends the analysis to be incorrect.
 
