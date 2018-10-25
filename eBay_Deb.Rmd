@@ -108,16 +108,6 @@ Thus, the interpretation is that for every one ad shown in the pre-treatment per
 # NULL Hypothesis: Revenue for the Control Group is the same as for the Treatment Group during the Pre-Treatment period 
 # NULL Hypothesis: Revenue for the Control Group is the same as for the Treatment Group during the Treatment period 
 
-#create pre-treatment subset
-
-# ebay_treatment_pre = subset(ebay[ebay$isTreatmentPeriod == "0",]) #10710 observations
-# 
-# #pre-treatment paired
-# t.test(ebay_treatment_pre$isTreatmentGroup=="0", ebay_treatment_pre$isTreatmentGroup=="1", paired = TRUE)
-# 
-# #treatment paired
-# t.test(ebay_treatment1$isTreatmentGroup=="0", ebay_treatment1$isTreatmentGroup=="1", paired = TRUE) 
-
 # Pre Treatment Period Analysis 
 ebay2<- ebay %>%
 filter(isTreatmentPeriod == 0)
