@@ -3,9 +3,9 @@ title: "eBay Assignment Marketing Analytics"
 author: "Debarati Mazumdar, Maura Oray"
 date: "10/21/2018"
 output:
-  word_document: default
-  pdf_document: default
   html_document: default
+  pdf_document: default
+  word_document: default
 ---
 
 ```{r results='hide', message=FALSE, warning=FALSE}
@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 *Introduction*
 
-````{r results='hide', message=FALSE, warning=FALSE}
+```{r results='hide', message=FALSE, warning=FALSE}
 
 library(dplyr)
 library(ggplot2)
@@ -115,7 +115,7 @@ summary(ebay_pre)
 
 ```
 
-```{r pressure, echo=FALSE}
+```{r results='hide', message=FALSE, warning=FALSE}
 # e.) post treatment data to check the effectiveness of ads with and without DMA
 # Part I 
 ebay$dma <- as.numeric(ebay$dma)
@@ -133,7 +133,7 @@ summary(ebay_dma1)
 # This is pretty unusal but it is possible as even though there is an insignificant difference , this can multiply to a larger value when the population for the groups increase.
 ```
 
-```{r pressure, echo=FALSE}
+```{r results='hide', message=FALSE, warning=FALSE}
 # f) Log is taken for revenue as it reduced the skewness in the variables and the results. If we observe the min  is $367 and max value of revenue is $ 2601390. Thus we see a huge band and chances of data being skewed is likely. 
 # Alos if we take the regression with simple revenue the intercept value is very large and the p value is very large . This tends the analysis to be incorrect.
 
