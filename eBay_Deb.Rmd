@@ -12,11 +12,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+*Introduction*
 
 ````{r results='hide', message=FALSE, warning=FALSE}
 
@@ -43,21 +39,22 @@ Here we see that the data set has 5 variables with 23,730 observations. The mini
 
 In terms of the data types, date is a factor, DMA, isTreatmentPeriod and isTreatmentGroup are integers, and revenue is numerical.
 
+*a. Convert the Date Column and Transform Variables*
 ```{r results='hide', message=FALSE, warning=FALSE}
 
-#a. Convert the Date Column 
 ebay$rDate <- as.Date(ebay$date, format="%m/%d/%y") 
 head(ebay)
-
-```
-In the above code, we added a column called 'rDate' and transformed the date from a factor to a date type.
-
-```{r results='hide', message=FALSE, warning=FALSE}
 
 #Convert to factors
 ebay[3:4] <- lapply(ebay[3:4], factor)
 
-#b. Determine Treatment Period start date
+```
+In the above code, we added a column called 'rDate' and transformed the date from a factor to a date type.
+
+We also decided to convert the Treatment Period and Treatment Group variables from integers to factors, because the variables are essentially categorical. Converting to factors will make for better statistical analysis and regression.
+
+*b. Determine Treatment Period start date*
+```{r results='hide', message=FALSE, warning=FALSE}
 
 ebay_treatment = subset(ebay[order(ebay$rDate),]) #order date
 head(ebay_treatment)
@@ -66,8 +63,6 @@ ebay_treatment1 = subset(ebay[order(ebay$rDate), ],isTreatmentPeriod == "1") #su
 head(ebay_treatment1)
 
 ```
-Firstly, we decided to convert the Treatment Period and Treatment Group variables from integers to factors, because the variables are essentially categorical. Converting to factors will make for better statistical analysis and regression.
-
 We also found the treatment and pre-treatment periods. The pre-treatment period (0), where both groups were shown ads, starte on 04/01/2012, and the treatment period (1), where control group continued to see ads but the treatment group did not, started on 05/22/2012. Therefore, the treatment group viewed ads for approximately 7 weeks. 
 
 ```{r results='hide', message=FALSE, warning=FALSE}
@@ -77,17 +72,16 @@ t = as.data.frame(a)
 names(t)[1] = 'Treatment Group' #header for first column
 names(t)[2] = 'Treatment Period' #header for second column
 t
+
 prop = table(ebay$isTreatmentGroup, ebay$isTreatmentPeriod)
 prop.table(prop)
 prop
 
-# so when we see the table format for the taregt population we can say that, 14% of the population is in the
-# control group - pre-treatment period, 17% is in the control group and treatment period 
-# 30% of the population is the treatment group for pre treatment period and 37% population is in the treatment # group for the treatment period. Thus, we can see that there is a data disparity in the division of groups   # for this study
 ```
+We decided to view the categorical data (treatment period and groups) as a frequency table for clearer understanding. As shown above, we can see that 14.6% of the population is in the control group/pre-treatment period (0/0), 17.8% is in the control group/treatment period (0/1), 30.5% is in the treatment group/pre-treatment period (1/0), and finally 37.1% is in the treatment group/treatment period (1/1). We can see that there is a data disparity in the division of groups, as the treatment group is larger.
 
-```{r}
-#c. Regression of Treatment Group and Revenue for pre and post treatment period
+*c. Regression of Treatment Group and Revenue for pre and post treatment period*
+```{r results='hide', message=FALSE, warning=FALSE}
 
 # Understanding the Notations - Control group (0), Treatment group (1). Ads shown to both groups is Treatment Period (0) and only to Control group is Treatment Periond (1)
 # Hypothesis for this analysis is : We hypothesize that not showing the ads to the treatment group will not lead to a decrease in revenue from the treatment period when ads were shown to the group
@@ -103,7 +97,7 @@ summary(ebay_log)
 # p value (< 0.05) , thus we can say that we should reject the NULL, and conclude that there is significant decrease in revenue once the ads are not shown to the group.
 ```
 
-```{r pressure, echo=FALSE}
+```{r results='hide', message=FALSE, warning=FALSE}
 # d.)
 # Random Test - paired t -test for Control group and Treatment group 
 # NULL Hypothesis will be that the revenue for control group is same as treatment group for pre treatment period 
