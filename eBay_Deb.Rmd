@@ -65,16 +65,13 @@ head(ebay_treatment)
 ebay_treatment1 = subset(ebay[order(ebay$rDate), ],isTreatmentPeriod == "1") #subset now by treatment period
 head(ebay_treatment1)
 
-# Treatment Period for 0 which means both the groups were shown the ads starting on 04/01/2012
-# Treatment Period for 1 which means control group was shown the ads and treatment group wasnt shown the ads  # starting  05/22/2012
-
 ```
 Firstly, we decided to convert the Treatment Period and Treatment Group variables from integers to factors, because the variables are essentially categorical. Converting to factors will make for better statistical analysis and regression.
 
+We also found the treatment and pre-treatment periods. The pre-treatment period (0), where both groups were shown ads, starte on 04/01/2012, and the treatment period (1), where control group continued to see ads but the treatment group did not, started on 05/22/2012. Therefore, the treatment group viewed ads for approximately 7 weeks. 
 
+```{r results='hide', message=FALSE, warning=FALSE}
 
-
-```{r pressure, echo=FALSE}
 a = table(ebay$isTreatmentGroup, ebay$isTreatmentPeriod)
 t = as.data.frame(a)
 names(t)[1] = 'Treatment Group' #header for first column
