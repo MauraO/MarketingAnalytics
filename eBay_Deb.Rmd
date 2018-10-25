@@ -8,48 +8,73 @@ output:
   html_document: default
 ---
 
-```{r results='hide',message=FALSE, warning=FALSE}
+```{r results='hide', message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+````{r results='hide', message=FALSE, warning=FALSE}
 
 library(dplyr)
 library(ggplot2)
 library(tidyverse)
 library(randomizeR)
-#The required libraries for the case analysis 
+
+#The required libraries for the case analysis
+
 ```
 
 
-```{r results='hide',message=FALSE, warning=FALSE}
-ebay<- read.csv("~/Desktop/BUS-256/MarketingAnalytics/eBayData.csv")
+```{r results='hide', message=FALSE, warning=FALSE}
+
+setwd("~/Desktop/BUS-256/MarketingAnalytics") #Set the working directory for easier collaboration
+ebay <- read.csv("eBayData.csv")
 summary(ebay)
 str(ebay)
 dim(ebay)
-# We see that the dataset has 5 variables wih 23,730 rows.
-# Revenue is  with a minimum of $367 and maximum of $2,601,390 with a median of $53,919
-# Date is a factor,(dma , isTreatmentPeriod, isTreatmentGroup) are integers,
-# Revenue is numerical. 
-```
 
-```{r results='hide',message=FALSE, warning=FALSE}
-# a. Convert the Date Column 
+```
+Here we see that the data set has 5 variables with 23,730 observations. The minimum revenue is $367, maximum is $2,601,390 with a median of $53,919. 
+
+In terms of the data types, date is a factor, DMA, isTreatmentPeriod and isTreatmentGroup are integers, and revenue is numerical.
+
+```{r results='hide', message=FALSE, warning=FALSE}
+
+#a. Convert the Date Column 
 ebay$rDate <- as.Date(ebay$date, format="%m/%d/%y") 
 head(ebay)
-# the date column is changed into date type as the 6th new column 
-```
 
-```{r results='hide',message=FALSE, warning=FALSE}
-# Convert the type into factors for statistical analysis for column  3 and 4 as for regression the categorical variables have to be factor variables.
+```
+In the above code, we added a column called 'rDate' and transformed the date from a factor to a date type.
+
+```{r results='hide', message=FALSE, warning=FALSE}
+
+#Convert to factors
 ebay[3:4] <- lapply(ebay[3:4], factor)
-is.factor(ebay$isTreatmentGroup) # check if the variable is factor
-is.factor(ebay$isTreatmentPeriod) # check if the variable is factor
-#b) Treatment Period Date start date 
-ebay_treatment = subset(ebay[order(ebay$rDate), ],isTreatmentPeriod == "1") 
+
+#b. Determine Treatment Period start date
+
+ebay_treatment = subset(ebay[order(ebay$rDate),]) #order date
 head(ebay_treatment)
-#Treatment start date is 5/22/2012 for the analysis
+
+ebay_treatment1 = subset(ebay[order(ebay$rDate), ],isTreatmentPeriod == "1") #subset now by treatment period
+head(ebay_treatment1)
+
+# Treatment Period for 0 which means both the groups were shown the ads starting on 04/01/2012
+# Treatment Period for 1 which means control group was shown the ads and treatment group wasnt shown the ads  # starting  05/22/2012
 
 ```
+Firstly, we decided to convert the Treatment Period and Treatment Group variables from integers to factors, because the variables are essentially categorical. Converting to factors will make for better statistical analysis and regression.
 
-```{r}
+
+
+
+```{r pressure, echo=FALSE}
 a = table(ebay$isTreatmentGroup, ebay$isTreatmentPeriod)
 t = as.data.frame(a)
 names(t)[1] = 'Treatment Group' #header for first column
@@ -65,81 +90,66 @@ prop
 ```
 
 ```{r}
-#c. Regression
-#Control group (0), Treatment (1). Treatment shown ads BEFORE treatment period and NOT after (0). Control group shown ads before and after.
-# Hypothesis: Revenue will decrease from the treatment group after the treatment period ends. We hypothesize that removing ads will not lead to a decrease in revenue
-#Combinations: 0/0 (control, before) 0/1 (control, after)
-# 1/0 (treatment, before) 1/1 (treatment, after)
-ebay1<- ebay %>%
-filter(isTreatmentGroup == 1)
+#c. Regression of Treatment Group and Revenue for pre and post treatment period
 
+# Understanding the Notations - Control group (0), Treatment group (1). Ads shown to both groups is Treatment Period (0) and only to Control group is Treatment Periond (1)
+# Hypothesis for this analysis is : We hypothesize that not showing the ads to the treatment group will not lead to a decrease in revenue from the treatment period when ads were shown to the group
+ebay1<- ebay %>%
+filter(isTreatmentGroup == 1) 
 ebay_log <- lm(log(revenue) ~ isTreatmentPeriod, data = ebay1)
 summary(ebay_log)
-coef(summary(ebay_log))
-
-# So for Treatment group which is the group which is not shown ads during the treatment period. 
 # The Intercept for the group during the period when ads are shown is 10.94 and for the period when ads are
-# not shown is ( 10.94 - .03) = 10.91 whcih is a very small insignificant difference.
+# not shown is (`10.94 -.03) = 10.91 whcih is a very small insignificant difference.
 # Thus, how we read this is for every one ad shown before the treatment period there is $10.94 increase in
 # revenue keeping all the other factors constant.
 # The intercept 10.94 is true at 99% confidence , and 10.91 at a confidence of 90%
-# p value (< 0.05) , thus we can say that we should reject the NULL, and conclude that there is significant decrease in revenue once the ads are not shown to the group
-
-#Small decrease in revenue during treatment period (1) for treatment group (1). While this seems insignificant, we do not know the whole customer base population, so if there are a lot of customers, this revenue loss can add up. Also, we do not know the full effect of time - that is to say how this revenue decrease will add up over time. 
-
+# p value (< 0.05) , thus we can say that we should reject the NULL, and conclude that there is significant decrease in revenue once the ads are not shown to the group.
 ```
 
-```{r}
-#Pre treatment regression and randomization test 
+```{r pressure, echo=FALSE}
+# d.)
+# Random Test - paired t -test for Control group and Treatment group 
+# NULL Hypothesis will be that the revenue for control group is same as treatment group for pre treatment period 
+# NULL Hypothesis will be that the revenue for control group is not the  same as treatment group for treatment period 
 
-# check randomization ?????
 
+
+# Pre Treatment Period Analysis 
 ebay2<- ebay %>%
- filter(isTreatmentPeriod == 0)
+filter(isTreatmentPeriod == 0)
 ebay_pre = lm(log(revenue) ~ isTreatmentGroup , data = ebay2)
 summary(ebay_pre)
+# Analysis - Intercept slope for Control group for pre treatment period is 10.96 and for Treatment group is slightly less (10.96 - 0.01) = 10.95 , thus for every ad shown to control group & treatment group there is a $10.96 earn in sales.Now we check p value which is >0.05 and this means that NULL is significant and thus we accept NULL.
+# R sqaure is very less so this indicates that there is poor goodness of fit, indicating that the values are pretty scattered and do not fall on the regression slope line.
 
-
-#Null hypothesis is true, we do not reject because p-value is high
 ```
 
-```{r}
-# e. post treatment data to check the effectiveness of ads with dma
+```{r pressure, echo=FALSE}
+# e.) post treatment data to check the effectiveness of ads with and without DMA
+# Part I 
 ebay$dma <- as.numeric(ebay$dma)
-
-ebay2 <- ebay %>%
-  filter(isTreatmentPeriod == 1) #13020 observations
-
-ebay_dma = lm(log(revenue) ~  dma + isTreatmentGroup, data = ebay2) # to discuss 
+ebay5<- ebay %>%
+filter(isTreatmentPeriod == 1)
+ebay_dma = lm(log(revenue) ~  dma + isTreatmentGroup , data = ebay5)
 summary(ebay_dma)
-
-ebay_dma1 = lm(log(revenue) ~ isTreatmentGroup, data = ebay2)
+#Part II
+ebay4<- ebay %>%
+filter(isTreatmentPeriod == 1)
+ebay_dma1 = lm(log(revenue) ~  isTreatmentGroup  , data = ebay4)
 summary(ebay_dma1)
 
-
-
-
-# For the analysis on revenue with Treatment group and dma, we see that intercept for treatment group 0 is 
-# 21.1 and for treatment group 1 is ( 21.1 - 0.013) = 21.08 which is almost the same. However there is no #significant difference when it come to studying the difference with log(dma). 
-# Both treatment group 0 and 1 behave the  same way. 
-# ?????????
-# Maybe clustering would help? 
-# p value is very low, but coefficient also small (lots of scattered data - from DMA?)
-
+# Analysis for part I we can say that whne we include the dma as an independent variable, we observe the intercept for Control group is (12.31-0.002) and for treatment group is ( 12.31 -.007), which indicates that there is no signifiacnt differnce with dma as a factor.Now when we observe p value <0.05 , thus NULL is not significant and we have to reject NULL.
+# This is pretty unusal but it is possible as even though there is an insignificant difference , this can multiply to a larger value when the population for the groups increase.
 ```
 
-```{r}
+```{r pressure, echo=FALSE}
 # f) Log is taken for revenue as it reduced the skewness in the variables and the results. If we observe the min  is $367 and max value of revenue is $ 2601390. Thus we see a huge band and chances of data being skewed is likely. 
-# Alos if we take the regression with simple revenue the intercept value is very large and the p value is very large. This tends the analysis to be incorrect.
+# Alos if we take the regression with simple revenue the intercept value is very large and the p value is very large . This tends the analysis to be incorrect.
 
-# g) Effectiveness of Advertising - conclusion  
-
-
+# g) Effectiveness of Advertising - Conclusion  
+# For this dataset we can conclude that advertisements can be effective in increasing sales for a company but the sample chosen for the ads should be the correct representation of the total population. 
+# From the tests in the analysis we can say that the ads were effective and customer actually got influenced in buying the product/ service. The Control group also tells us the exact sample of data and as a company we can study the consumer behaviour and profile such customers as "people with similar buying patterns"
 
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
-summary(ebay$dma)
-
-corr(ebay$rev)
