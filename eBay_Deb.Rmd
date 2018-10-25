@@ -12,7 +12,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-*Introduction*
+**Introduction**
 
 ```{r results='hide', message=FALSE, warning=FALSE}
 
@@ -39,7 +39,7 @@ Here we see that the data set has 5 variables with 23,730 observations. The mini
 
 In terms of the data types, date is a factor, DMA, isTreatmentPeriod and isTreatmentGroup are integers, and revenue is numerical.
 
-*a. Convert the Date Column and Transform Variables*
+**a. Convert the Date Column and Transform Variables**
 ```{r results='hide', message=FALSE, warning=FALSE}
 
 ebay$rDate <- as.Date(ebay$date, format="%m/%d/%y") 
@@ -53,18 +53,19 @@ In the above code, we added a column called 'rDate' and transformed the date fro
 
 We also decided to convert the Treatment Period and Treatment Group variables from integers to factors, because the variables are essentially categorical. Converting to factors will make for better statistical analysis and regression.
 
-*b. Determine Treatment Period start date*
+**b. Determine Treatment Period start date**
 ```{r results='hide', message=FALSE, warning=FALSE}
 
 ebay_treatment = subset(ebay[order(ebay$rDate),]) #order date
 head(ebay_treatment)
 
-ebay_treatment1 = subset(ebay[order(ebay$rDate), ],isTreatmentPeriod == "1") #subset now by treatment period
+ebay_treatment1 = subset(ebay[order(ebay$rDate), ],isTreatmentPeriod == "1") #13,020 observations 
 head(ebay_treatment1)
 
 ```
 We also found the treatment and pre-treatment periods. The pre-treatment period (0), where both groups were shown ads, starte on 04/01/2012, and the treatment period (1), where control group continued to see ads but the treatment group did not, started on 05/22/2012. Therefore, the treatment group viewed ads for approximately 7 weeks. 
 
+**Frequency Table**
 ```{r results='hide', message=FALSE, warning=FALSE}
 
 a = table(ebay$isTreatmentGroup, ebay$isTreatmentPeriod)
@@ -80,30 +81,44 @@ prop
 ```
 We decided to view the categorical data (treatment period and groups) as a frequency table for clearer understanding. As shown above, we can see that 14.6% of the population is in the control group/pre-treatment period (0/0), 17.8% is in the control group/treatment period (0/1), 30.5% is in the treatment group/pre-treatment period (1/0), and finally 37.1% is in the treatment group/treatment period (1/1). We can see that there is a data disparity in the division of groups, as the treatment group is larger.
 
-*c. Regression of Treatment Group and Revenue for pre and post treatment period*
+**c. Regression of Treatment Group and Revenue for pre and post treatment periods**
 ```{r results='hide', message=FALSE, warning=FALSE}
 
-# Understanding the Notations - Control group (0), Treatment group (1). Ads shown to both groups is Treatment Period (0) and only to Control group is Treatment Periond (1)
-# Hypothesis for this analysis is : We hypothesize that not showing the ads to the treatment group will not lead to a decrease in revenue from the treatment period when ads were shown to the group
+# Understanding the Notations:
+# Control Group (0)
+# Treatment Group (1)
+# Pre-Treatment Period (0), Ads shown to both groups
+# Treatment Period (1), Control Group shown ads, Treatment Group not shown ads
+
 ebay1<- ebay %>%
 filter(isTreatmentGroup == 1) 
 ebay_log <- lm(log(revenue) ~ isTreatmentPeriod, data = ebay1)
 summary(ebay_log)
-# The Intercept for the group during the period when ads are shown is 10.94 and for the period when ads are
-# not shown is (`10.94 -.03) = 10.91 whcih is a very small insignificant difference.
-# Thus, how we read this is for every one ad shown before the treatment period there is $10.94 increase in
-# revenue keeping all the other factors constant.
-# The intercept 10.94 is true at 99% confidence , and 10.91 at a confidence of 90%
-# p value (< 0.05) , thus we can say that we should reject the NULL, and conclude that there is significant decrease in revenue once the ads are not shown to the group.
-```
 
+```
+We hypothesize that not showing the ads to the Treatment Group will lead to a decrease in revenue during the treatment period.
+
+After performing the regression, we see that the intercept for the group during the period when ads are shown is 10.94 (in dollars) and for the period when ads are not shown is (10.94 -.03) = 10.91, which is an insignificant difference. 
+
+Thus, the interpretation is that for every one ad shown in the pre-treatment period there is $10.94 increase in revenue keeping all other factors constant. The intercept of 10.94 is true at the 99% confidence level, and 10.91 at the 90% confidence level. The p-value is signifcant (p < 0.05), thus we can say that we should reject the null hypothesis and conclude that there is a decrease in revenue once the ads are not shown to the group.
+
+**d. Randomization Test**
 ```{r results='hide', message=FALSE, warning=FALSE}
 # d.)
 # Random Test - paired t -test for Control group and Treatment group 
 # NULL Hypothesis will be that the revenue for control group is same as treatment group for pre treatment period 
 # NULL Hypothesis will be that the revenue for control group is not the  same as treatment group for treatment period 
+# 
 
+#create pre-treatment subset
 
+ebay_treatment_pre = subset(ebay[ebay$isTreatmentPeriod == "0",]) #10710 observations
+
+#pre-treatment paired
+t.test(ebay_treatment_pre$isTreatmentGroup=="0", ebay_treatment_pre$isTreatmentGroup=="1", paired = TRUE)
+
+#treatment paired
+t.test(ebay_treatment1$isTreatmentGroup=="0", ebay_treatment1$isTreatmentGroup=="1", paired = TRUE) 
 
 # Pre Treatment Period Analysis 
 ebay2<- ebay %>%
