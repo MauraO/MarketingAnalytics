@@ -104,31 +104,30 @@ Thus, the interpretation is that for every one ad shown in the pre-treatment per
 
 **d. Randomization Test**
 ```{r results='hide', message=FALSE, warning=FALSE}
-# d.)
-# Random Test - paired t -test for Control group and Treatment group 
-# NULL Hypothesis will be that the revenue for control group is same as treatment group for pre treatment period 
-# NULL Hypothesis will be that the revenue for control group is not the  same as treatment group for treatment period 
-# 
+
+# NULL Hypothesis: Revenue for the Control Group is the same as for the Treatment Group during the Pre-Treatment period 
+# NULL Hypothesis: Revenue for the Control Group is the same as for the Treatment Group during the Treatment period 
 
 #create pre-treatment subset
 
-ebay_treatment_pre = subset(ebay[ebay$isTreatmentPeriod == "0",]) #10710 observations
-
-#pre-treatment paired
-t.test(ebay_treatment_pre$isTreatmentGroup=="0", ebay_treatment_pre$isTreatmentGroup=="1", paired = TRUE)
-
-#treatment paired
-t.test(ebay_treatment1$isTreatmentGroup=="0", ebay_treatment1$isTreatmentGroup=="1", paired = TRUE) 
+# ebay_treatment_pre = subset(ebay[ebay$isTreatmentPeriod == "0",]) #10710 observations
+# 
+# #pre-treatment paired
+# t.test(ebay_treatment_pre$isTreatmentGroup=="0", ebay_treatment_pre$isTreatmentGroup=="1", paired = TRUE)
+# 
+# #treatment paired
+# t.test(ebay_treatment1$isTreatmentGroup=="0", ebay_treatment1$isTreatmentGroup=="1", paired = TRUE) 
 
 # Pre Treatment Period Analysis 
 ebay2<- ebay %>%
 filter(isTreatmentPeriod == 0)
 ebay_pre = lm(log(revenue) ~ isTreatmentGroup , data = ebay2)
 summary(ebay_pre)
-# Analysis - Intercept slope for Control group for pre treatment period is 10.96 and for Treatment group is slightly less (10.96 - 0.01) = 10.95 , thus for every ad shown to control group & treatment group there is a $10.96 earn in sales.Now we check p value which is >0.05 and this means that NULL is significant and thus we accept NULL.
-# R sqaure is very less so this indicates that there is poor goodness of fit, indicating that the values are pretty scattered and do not fall on the regression slope line.
 
 ```
+The intercept slope for the Control Group for pre-treatment period is 10.96 and the intercept for the Treatment Group is nearly the same: (10.96 - 0.01) = 10.95 , thus for every ad shown to the Control Group and Treatment Group there is a $10.96 earn in sales. As we see that the p-value is insignificant (p > 0.05), we fail to reject the null hypothesis. 
+
+We also see that the R-Square value is extremely small, indicating that there is poor goodness of fit, and that the values are scattered and do not fall on the regression slope line.
 
 ```{r results='hide', message=FALSE, warning=FALSE}
 # e.) post treatment data to check the effectiveness of ads with and without DMA
