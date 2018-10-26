@@ -1,0 +1,155 @@
+---
+title: "eBay Assignment Marketing Analytics"
+author: "Debarati Mazumdar, Maura Oray"
+date: "10/21/2018"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**Introduction**
+
+Is online advertising effective? This is a natural question that would interest any business using an online platform. With more and more businesses joining the e-commerce sector, especially with Amazon taking 49.1% of e-commerce sales [^1], how does a company like eBay get ahead?
+
+In this analysis, we will focus on the effectiveness of online advertising from eBay.
+
+```{r message=FALSE, warning=FALSE}
+
+#The required libraries for the case analysis
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(randomizeR)
+
+setwd("~/Desktop/BUS-256/MarketingAnalytics") #Set the working directory for easier collaboration
+ebay <- read.csv("eBayData.csv")
+summary(ebay)
+str(ebay)
+dim(ebay)
+
+```
+Here we see that the data set has 5 variables with 23,730 observations. The minimum revenue is $367, maximum is $2,601,390 with a median of $53,919. 
+
+In terms of the data types, date is a factor, DMA, isTreatmentPeriod and isTreatmentGroup are integers, and revenue is numerical.
+
+**a. Convert the Date Column and Transform Variables**
+```{r message=FALSE, warning=FALSE}
+
+ebay$rDate <- as.Date(ebay$date, format="%m/%d/%y") 
+head(ebay)
+
+#Convert to factors
+ebay[3:4] <- lapply(ebay[3:4], factor)
+
+```
+In the above code, we added a column called 'rDate' and transformed the date from a factor to a date type.
+
+We also decided to convert the treatment period and treatment group variables from integers to factors, because the variables are essentially categorical. Converting to factors will make for better statistical analysis and regression.
+
+**b. Determine Treatment Period start date**
+```{r message=FALSE, warning=FALSE}
+
+ebay_treatment = subset(ebay[order(ebay$rDate),]) #order date
+head(ebay_treatment)
+
+ebay_treatment1 = subset(ebay[order(ebay$rDate), ],isTreatmentPeriod == "1") #13,020 observations 
+head(ebay_treatment1)
+
+```
+We also found the treatment and pre-treatment periods. The pre-treatment period (0), where both groups were shown ads, started on 04/01/2012, and the treatment period (1), where control group continued to see ads but the treatment group did not, started on 05/22/2012. Therefore, the treatment group viewed ads for approximately 7 weeks. 
+
+**Frequency Table**
+```{r message=FALSE, warning=FALSE}
+
+a = table(ebay$isTreatmentGroup, ebay$isTreatmentPeriod)
+t = as.data.frame(a)
+names(t)[1] = 'Treatment Group' #header for first column
+names(t)[2] = 'Treatment Period' #header for second column
+t
+
+prop = table(ebay$isTreatmentGroup, ebay$isTreatmentPeriod)
+prop.table(prop)
+
+```
+We decided to view the categorical data (treatment period and groups) as a frequency table for clearer understanding. As shown above, we can see that 14.6% of the population is in the control group/pre-treatment period (0/0), 17.8% is in the control group/treatment period (0/1), 30.5% is in the treatment group/pre-treatment period (1/0), and finally 37.1% is in the treatment group/treatment period (1/1). We can see that there is a data disparity in the division of groups, as the treatment group is larger.
+
+**c. Regression of Treatment Group and Revenue for pre and post treatment periods**
+```{r message=FALSE, warning=FALSE}
+
+# Understanding the Notations:
+# Control Group (0)
+# Treatment Group (1)
+# Pre-Treatment Period (0), Ads shown to both groups
+# Treatment Period (1), Control Group shown ads, Treatment Group not shown ads
+
+ebay1<- ebay %>%
+filter(isTreatmentGroup == 1) 
+ebay_log <- lm(log(revenue) ~ isTreatmentPeriod, data = ebay1)
+summary(ebay_log)
+
+```
+We hypothesize that not showing the ads to the treatment group will lead to a decrease in revenue during the treatment period.
+
+After performing the regression, we see that the intercept for the group during the period when ads are shown is 10.94 (in dollars) and for the period when ads are not shown is (10.94 -.03) = 10.91, which is an insignificant difference. 
+
+Thus, the interpretation is that for every one ad shown in the pre-treatment period there is $10.94 increase in revenue keeping all other factors constant. The intercept of 10.94 is true at the 99% confidence level, and 10.91 at the 90% confidence level. The p-value is signifcant (p < 0.05), thus we can say that we should reject the null hypothesis and conclude that there is a decrease in revenue once the ads are not shown to the group.
+
+**d. Randomization Test**
+```{r message=FALSE, warning=FALSE}
+
+# Pre-Treatment Regression
+
+ebay2<- ebay %>%
+filter(isTreatmentPeriod == 0)
+ebay_pre = lm(log(revenue) ~ isTreatmentGroup , data = ebay2)
+summary(ebay_pre)
+
+```
+NULL Hypothesis: Revenue for the control group is the same as for the treatment group during the pre-treatment period. 
+
+The intercept slope for the control group during the pre-treatment period is 10.96 and the intercept for the treatment group is nearly the same: (10.96 - 0.01) = 10.95 , thus for every ad shown to the control group and treatment group there is a $10.96 increase in sales. As we see that the p-value is insignificant (p > 0.05), we fail to reject the null hypothesis. 
+
+We also see that the R-Square value is extremely small, indicating that there is poor goodness of fit, and that the values are scattered and do not fall on the regression slope line.
+
+**e. Post-treatment data to check the effectiveness of ads with and without DMA**
+```{r message=FALSE, warning=FALSE}
+
+# Part I 
+ebay$dma <- as.numeric(ebay$dma)
+ebay5<- ebay %>%
+filter(isTreatmentPeriod == 1)
+ebay_dma = lm(log(revenue) ~  dma + isTreatmentGroup , data = ebay5)
+summary(ebay_dma)
+
+#Part II
+ebay4<- ebay %>%
+filter(isTreatmentPeriod == 1)
+ebay_dma1 = lm(log(revenue) ~  isTreatmentGroup  , data = ebay4)
+summary(ebay_dma1)
+
+```
+In Part I, when we include DMA as an independent variable, we observe that the intercept for the control group is 12.308 (12.31 - 0.002) and for the treatment group the intercept is 12.301 (12.31 - 0.002 - 0.007), which indicates that there is a negligible difference when DMA is added to the regression model. 
+
+We also observe that the p-value is < 0.05, thus we fail to reject the null hypothesis. While the difference when adding DMA to the groups is insignifcant, we can extrapolate that the difference could be much more pronounced as the population increases (i.e. as customers increase).
+
+**f. Log of revenue**
+
+Log is taken for revenue as it reduced the skewness in the variables and the results. The minimum revenue in the data set is $367 and the maximum $2,601,390, which shows a huge range. Using a logarithmic scale is also useful when dealing with economies of scale. Finally, if we take the regression with simple revenue (without a log) the intercept value is very large and the p-value is large as well, which skews the analysis.
+
+**g. Conclusion: Effectiveness of Advertising**
+
+We can conclude that advertisements can be effective in increasing sales for a business but that the sample chosen for the ads should be the correct representation of the total population. 
+
+From the tests performed we can say that the ads were effective that it is likely that customers were influenced by the ads. Having a control group can also illuminate whether removing ads can be a factor in a decrease in revenue, and also allows us to study consumer behavior, and profile such consumers as "people with similar buying patterns." 
+
+Finally, while the differences in revenue between the control and treatment group may seem insignificant, we must keep in mind that the treatment period was for a short amount of time, and that the group samples were not very large. Extrapolating these differences revenue over a longer period of time and with larger samples would result in greater revenue differences.
+
+also tells us the exact sample of data and as a company we can study the consumer behaviour and profile such customers as "people with similar buying patterns"
+
+
+[^1]: Lunden, Ingrid. “Amazon's Share of the US e-Commerce Market Is Now 49%, or 5% of All Retail Spend.” TechCrunch, TechCrunch, 13 July 2018, techcrunch.com/2018/07/13/amazons-share-of-the-us-e-commerce-market-is-now-49-or-5-of-all-retail-spend/.
