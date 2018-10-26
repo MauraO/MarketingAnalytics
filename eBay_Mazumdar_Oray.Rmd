@@ -147,7 +147,7 @@ We can conclude that advertisements can be effective in increasing sales for a b
 
 From the tests performed we can say that the ads were effective that it is likely that customers were influenced by the ads. Having a control group can also illuminate whether removing ads can be a factor in a decrease in revenue, and also allows us to study consumer behavior, and profile such consumers as "people with similar buying patterns." 
 
-Finally, while the differences in revenue between the control and treatment group may seem insignificant, we must keep in mind that the treatment period was for a short amount of time, and that the group samples were not very large. Extrapolating these differences revenue over a longer period of time and with larger samples would result in greater revenue differences.
+Finally, while the differences in revenue between the control and treatment group may seem insignificant, we must keep in mind that the treatment period was for a short amount of time, and that the group samples were not very large. Extrapolating these revenue differences over a longer period of time and with larger samples would result in greater revenue differences.
 
 
 [^1]: Lunden, Ingrid. “Amazon's Share of the US e-Commerce Market Is Now 49%, or 5% of All Retail Spend.” TechCrunch, TechCrunch, 13 July 2018, techcrunch.com/2018/07/13/amazons-share-of-the-us-e-commerce-market-is-now-49-or-5-of-all-retail-spend/.
