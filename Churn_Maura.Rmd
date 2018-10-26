@@ -1,0 +1,35 @@
+---
+title: "QWE Churn Analysis"
+author: "Debarati Mazumdar, Maura Oray"
+date: "10/29/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**1. Introduction**
+
+```{r message=FALSE, warning=FALSE}
+
+#Required Packages
+
+library(ggplot2)
+library(dplyr)
+library(readxl)
+
+```
+
+**Data Description and Cleaning**
+```{r message=FALSE, warning=FALSE}
+
+setwd("~/Desktop/BUS-256/MarketingAnalytics") #Set working directory for easier collaboration
+
+qwe <- read_excel("Churn.xlsx", sheet = 2)
+
+summary(qwe)
+str(qwe) 
+
+```
+All of the variables were originally stored as numeric. 
