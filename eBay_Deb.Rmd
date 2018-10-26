@@ -3,9 +3,9 @@ title: "eBay Assignment Marketing Analytics"
 author: "Debarati Mazumdar, Maura Oray"
 date: "10/21/2018"
 output:
-  html_document: default
-  pdf_document: default
   word_document: default
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r message=FALSE, warning=FALSE}
@@ -14,19 +14,17 @@ knitr::opts_chunk$set(echo = TRUE)
 
 **Introduction**
 
+Is online advertising effective? This is a natural question that would interest any business using an online platform. With more and more businesses joining the e-commerce sector, especially with Amazon taking 49.1% of e-commerce sales [^1], how does a company like eBay get ahead?
+
+In this analysis, we will focus on the effectiveness of online advertising from eBay.
+
 ```{r message=FALSE, warning=FALSE}
 
+#The required libraries for the case analysis
 library(dplyr)
 library(ggplot2)
 library(tidyverse)
 library(randomizeR)
-
-#The required libraries for the case analysis
-
-```
-
-
-```{r message=FALSE, warning=FALSE}
 
 setwd("~/Desktop/BUS-256/MarketingAnalytics") #Set the working directory for easier collaboration
 ebay <- read.csv("eBayData.csv")
@@ -51,7 +49,7 @@ ebay[3:4] <- lapply(ebay[3:4], factor)
 ```
 In the above code, we added a column called 'rDate' and transformed the date from a factor to a date type.
 
-We also decided to convert the Treatment Period and Treatment Group variables from integers to factors, because the variables are essentially categorical. Converting to factors will make for better statistical analysis and regression.
+We also decided to convert the treatment period and treatment group variables from integers to factors, because the variables are essentially categorical. Converting to factors will make for better statistical analysis and regression.
 
 **b. Determine Treatment Period start date**
 ```{r message=FALSE, warning=FALSE}
@@ -63,7 +61,7 @@ ebay_treatment1 = subset(ebay[order(ebay$rDate), ],isTreatmentPeriod == "1") #13
 head(ebay_treatment1)
 
 ```
-We also found the treatment and pre-treatment periods. The pre-treatment period (0), where both groups were shown ads, starte on 04/01/2012, and the treatment period (1), where control group continued to see ads but the treatment group did not, started on 05/22/2012. Therefore, the treatment group viewed ads for approximately 7 weeks. 
+We also found the treatment and pre-treatment periods. The pre-treatment period (0), where both groups were shown ads, started on 04/01/2012, and the treatment period (1), where control group continued to see ads but the treatment group did not, started on 05/22/2012. Therefore, the treatment group viewed ads for approximately 7 weeks. 
 
 **Frequency Table**
 ```{r message=FALSE, warning=FALSE}
@@ -96,7 +94,7 @@ ebay_log <- lm(log(revenue) ~ isTreatmentPeriod, data = ebay1)
 summary(ebay_log)
 
 ```
-We hypothesize that not showing the ads to the Treatment Group will lead to a decrease in revenue during the treatment period.
+We hypothesize that not showing the ads to the treatment group will lead to a decrease in revenue during the treatment period.
 
 After performing the regression, we see that the intercept for the group during the period when ads are shown is 10.94 (in dollars) and for the period when ads are not shown is (10.94 -.03) = 10.91, which is an insignificant difference. 
 
@@ -105,46 +103,56 @@ Thus, the interpretation is that for every one ad shown in the pre-treatment per
 **d. Randomization Test**
 ```{r message=FALSE, warning=FALSE}
 
-# NULL Hypothesis: Revenue for the Control Group is the same as for the Treatment Group during the Pre-Treatment period 
-# NULL Hypothesis: Revenue for the Control Group is the same as for the Treatment Group during the Treatment period 
+# Pre-Treatment Regression
 
-# Pre Treatment Period Analysis 
 ebay2<- ebay %>%
 filter(isTreatmentPeriod == 0)
 ebay_pre = lm(log(revenue) ~ isTreatmentGroup , data = ebay2)
 summary(ebay_pre)
 
 ```
-The intercept slope for the Control Group for pre-treatment period is 10.96 and the intercept for the Treatment Group is nearly the same: (10.96 - 0.01) = 10.95 , thus for every ad shown to the Control Group and Treatment Group there is a $10.96 earn in sales. As we see that the p-value is insignificant (p > 0.05), we fail to reject the null hypothesis. 
+NULL Hypothesis: Revenue for the control group is the same as for the treatment group during the pre-treatment period. 
+
+NULL Hypothesis: Revenue for the control group is the same as for the treatment group during the treatment period. 
+
+The intercept slope for the control group during the pre-treatment period is 10.96 and the intercept for the treatment group is nearly the same: (10.96 - 0.01) = 10.95 , thus for every ad shown to the control group and treatment group there is a $10.96 increase in sales. As we see that the p-value is insignificant (p > 0.05), we fail to reject the null hypothesis. 
 
 We also see that the R-Square value is extremely small, indicating that there is poor goodness of fit, and that the values are scattered and do not fall on the regression slope line.
 
+**e. Post-treatment data to check the effectiveness of ads with and without DMA**
 ```{r message=FALSE, warning=FALSE}
-# e.) post treatment data to check the effectiveness of ads with and without DMA
+
 # Part I 
 ebay$dma <- as.numeric(ebay$dma)
 ebay5<- ebay %>%
 filter(isTreatmentPeriod == 1)
 ebay_dma = lm(log(revenue) ~  dma + isTreatmentGroup , data = ebay5)
 summary(ebay_dma)
+
 #Part II
 ebay4<- ebay %>%
 filter(isTreatmentPeriod == 1)
 ebay_dma1 = lm(log(revenue) ~  isTreatmentGroup  , data = ebay4)
 summary(ebay_dma1)
 
-# Analysis for part I we can say that whne we include the dma as an independent variable, we observe the intercept for Control group is (12.31-0.002) and for treatment group is ( 12.31 -.007), which indicates that there is no signifiacnt differnce with dma as a factor.Now when we observe p value <0.05 , thus NULL is not significant and we have to reject NULL.
-# This is pretty unusal but it is possible as even though there is an insignificant difference , this can multiply to a larger value when the population for the groups increase.
 ```
+In Part I, when we include DMA as an independent variable, we observe that the intercept for the control group is 12.308 (12.31 - 0.002) and for the treatment group the intercept is 12.301 (12.31 - 0.002 - 0.007), which indicates that there is a negligible difference when DMA is added to the regression model. 
 
-```{r message=FALSE, warning=FALSE}
-# f) Log is taken for revenue as it reduced the skewness in the variables and the results. If we observe the min  is $367 and max value of revenue is $ 2601390. Thus we see a huge band and chances of data being skewed is likely. 
-# Alos if we take the regression with simple revenue the intercept value is very large and the p value is very large . This tends the analysis to be incorrect.
+We also observe that the p-value is < 0.05, thus we fail to reject the null hypothesis. While the difference when adding DMA to the groups is insignifcant, we can extrapolate that the difference could be much more pronounced as the population increases (i.e. as customers increase).
 
-# g) Effectiveness of Advertising - Conclusion  
-# For this dataset we can conclude that advertisements can be effective in increasing sales for a company but the sample chosen for the ads should be the correct representation of the total population. 
-# From the tests in the analysis we can say that the ads were effective and customer actually got influenced in buying the product/ service. The Control group also tells us the exact sample of data and as a company we can study the consumer behaviour and profile such customers as "people with similar buying patterns"
+**f. Log of revenue**
 
-```
+Log is taken for revenue as it reduced the skewness in the variables and the results. The minimum revenue in the data set is $367 and the maximum $2,601,390, which shows a huge range. Using a logarithmic scale is also useful when dealing with economies of scale. Finally, if we take the regression with simple revenue (without a log) the intercept value is very large and the p-value is large as well, which skews the analysis.
+
+**g. Conclusion: Effectiveness of Advertising**
+
+We can conclude that advertisements can be effective in increasing sales for a business but that the sample chosen for the ads should be the correct representation of the total population. 
+
+From the tests performed we can say that the ads were effective that it is likely that customers were influenced by the ads. Having a control group can also illuminate whether removing ads can be a factor in a decrease in revenue, and also allows us to study consumer behavior, and profile such consumers as "people with similar buying patterns." 
+
+Finally, while the differences in revenue between the control and treatment group may seem insignificant, we must keep in mind that the treatment period was for a short amount of time, and that the group samples were not very large. Extrapolating these differences revenue over a longer period of time and with larger samples would result in greater revenue differences.
+
+also tells us the exact sample of data and as a company we can study the consumer behaviour and profile such customers as "people with similar buying patterns"
 
 
+[^1]: Lunden, Ingrid. “Amazon's Share of the US e-Commerce Market Is Now 49%, or 5% of All Retail Spend.” TechCrunch, TechCrunch, 13 July 2018, techcrunch.com/2018/07/13/amazons-share-of-the-us-e-commerce-market-is-now-49-or-5-of-all-retail-spend/.
