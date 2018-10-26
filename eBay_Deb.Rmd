@@ -3,9 +3,9 @@ title: "eBay Assignment Marketing Analytics"
 author: "Debarati Mazumdar, Maura Oray"
 date: "10/21/2018"
 output:
-  word_document: default
-  pdf_document: default
   html_document: default
+  pdf_document: default
+  word_document: default
 ---
 
 ```{r message=FALSE, warning=FALSE}
@@ -74,7 +74,6 @@ t
 
 prop = table(ebay$isTreatmentGroup, ebay$isTreatmentPeriod)
 prop.table(prop)
-prop
 
 ```
 We decided to view the categorical data (treatment period and groups) as a frequency table for clearer understanding. As shown above, we can see that 14.6% of the population is in the control group/pre-treatment period (0/0), 17.8% is in the control group/treatment period (0/1), 30.5% is in the treatment group/pre-treatment period (1/0), and finally 37.1% is in the treatment group/treatment period (1/1). We can see that there is a data disparity in the division of groups, as the treatment group is larger.
