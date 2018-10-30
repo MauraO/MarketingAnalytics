@@ -3,8 +3,8 @@ title: 'Pilgrim Bank Part A: Debarati Mazumdar, Maura Oray'
 author: "Debarati Mazumdar, Maura Oray"
 date: "9/30/2018"
 output:
-  html_document: default
   word_document: default
+  html_document: default
 ---
 
 ```{r}
