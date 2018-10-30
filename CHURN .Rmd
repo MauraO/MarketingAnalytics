@@ -42,6 +42,21 @@ qwe[3] <- lapply(qwe[3], factor)
 a <- sapply(qwe, function(x) sum(is.na(x))) 
 a
 
+#Change some variable names
+
+names(qwe)[2]<-paste("age_months")
+names(qwe)[3]<-paste("churn")
+names(qwe)[4]<-paste("chi_month0")
+names(qwe)[5]<-paste("chi_change")
+names(qwe)[6]<-paste("sc_month0")
+names(qwe)[7]<-paste("sc_change")
+names(qwe)[8]<-paste("sp_month0")
+names(qwe)[9]<-paste("sp_change")
+names(qwe)[10]<-paste("login_change")
+names(qwe)[11]<-paste("blog_change")
+names(qwe)[12]<-paste("view_change")
+names(qwe)[13]<-paste("days_login_change")
+
 ```
 
 ```{r message=FALSE, warning=FALSE}
