@@ -9,14 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
 **Introduction**
-
 
 ```{r setup, include=FALSE}
 
@@ -28,18 +21,20 @@ library(readxl)
 
 setwd("~/Desktop/BUS-256/MarketingAnalytics") #Set working directory for easier collaboration
 
+```
+
+**2. Data Description & Cleaning**
+```{r message=FALSE, warning=FALSE}
+
 qwe <- read_excel("Churn.xlsx", sheet = 2)
 summary(qwe)
 str(qwe)
 dim(qwe)
 View(qwe)
-```
 
-```{r message=FALSE, warning=FALSE}
-
-# Change categorical variables to factor data type for churn yes - no 
+#Change categorical variables to factor data type for churn yes - no
 qwe[3] <- lapply(qwe[3], factor)
-a <- sapply(qwe, function(x) sum(is.na(x))) 
+a <- sapply(qwe, function(x) sum(is.na(x)))
 a
 
 #Change some variable names
@@ -58,38 +53,54 @@ names(qwe)[12]<-paste("view_change")
 names(qwe)[13]<-paste("days_login_change")
 
 ```
+Below is a description of the following variables:
+
+- Month 0: The starting point, month of December
+- 
 
 ```{r message=FALSE, warning=FALSE}
 # Log for the data which has negative inputs 
-qwe$`CHI Score 0-1`<- log(qwe$`CHI Score 0-1`)
-qwe$`Support Cases 0-1` <- log(qwe$`Support Cases 0-1`)
-qwe$`Logins 0-1` <- log(qwe$`Logins 0-1`)
-qwe$`Blog Articles 0-1` <- log(qwe$`Blog Articles 0-1`)
-qwe$`Views 0-1` <- log(qwe$`Views 0-1`)
+qwe$chi_change<- log(qwe$chi_change)
+qwe$sc_change <- log(qwe$sc_change)
+qwe$login_change <- log(qwe$login_change)
+qwe$blog_change <- log(qwe$blog_change)
+qwe$view_change <- log(qwe$view_change)
 ```
 
 
 
 ```{r message=FALSE, warning=FALSE}
 
-p1 <- ggplot(data = qwe, aes( x= qwe$`CHI Score Month 0`, y =qwe$`Churn (1 = Yes, 0 = No)`, fill = qwe$`Churn (1 = Yes, 0 = No)`))+
-      ggtitle("Chi Square with churn month")+
+p1 <- ggplot(data = qwe, aes(x= qwe$chi_month0, fill = qwe$churn), position="dodge")+
+      ggtitle("CHI with churn month")+
       xlim(0.5,200)+
-      scale_y_continuous(limits = c(0,10))+
-      xlab("Dec Month Churn Rate") + ylab("Happiness Index ")+
+      # ylim(0, 200)+
+      # scale_y_continuous(limits = c(0,5))+
+      xlab("Happiness Index") + ylab("December Churn Rate")+
       theme_minimal()+
-      geom_bar( )
+      geom_bar()
 p1
+
+p1 <- ggplot(data = qwe, aes( x= qwe$chi_month0, y =qwe$churn))+
+      ggtitle("CHI with churn month")+
+      xlim(0.5,200)+
+      # ylim(0, 200)+
+      # scale_y_continuous(limits = c(0,5))+
+      xlab("Happiness Index") + ylab("December Churn Rate")+
+      theme_minimal()+
+      geom_bar(stat="identity")+
+  facet_wrap(~churn)
 ```
 
 
 ```{r}
 # Visualization of Average Churn Rate with customer age 
 # Replace missing value with 0 since this is a categorical value variable with 0 and 1 only 
-qwe$`Churn (1 = Yes, 0 = No)`[is.na(qwe$`Churn (1 = Yes, 0 = No)`)] <- 0
-Averagechurn<- mean(qwe$`Churn (1 = Yes, 0 = No)` == 1)
+qwe$churn[is.na(qwe$churn)] <- 0
+Averagechurn<- mean(qwe$churn == 1)
+qwe$churn <- as.factor(qwe$churn)
 Averagechurn
-p2<- ggplot(data = qwe, aes( x= qwe$`Customer Age (in months)`, y = Averagechurn))+
+p2<- ggplot(data = qwe, aes( x= qwe$age_months, y = Averagechurn))+
      xlim(0,60)+
      #main = " Average Churn Rate vis a vis Customer Age"+
      labs( x = " Customer Age in months"  , y = "Average Churn Rate")+
@@ -99,19 +110,19 @@ p2
 ```
 
 ```{r}
-# count of customers for each age band scatter plot 
+#Boxplot visualization for churn count by account age
 
-qwe$`Churn (1 = Yes, 0 = No)`[is.na(qwe$`Churn (1 = Yes, 0 = No)`)] <- 0
-qwe1 <- subset(qwe , qwe$`Churn (1 = Yes, 0 = No)`== 1)
-select = c(qwe$`Customer Age (in months)`)
-p3<- ggplot(data = qwe1, aes( x= qwe1$`Customer Age (in months)`,y = qwe1$`Churn (1 = Yes, 0 = No)`))+
-     xlim(0,40)+
-     #main = " Average Churn Rate vis a vis Customer Age"+
-     labs( x = " Customer Age in months"  , y = "Average Churn Rate")+
-  scale_fill_gradient("Count", low="green", high="red")+
-     geom_histogram( breaks = seq( 0,40,by =2), stat = "identity")
+qwe$churn[is.na(qwe$churn)] <- 0
+qwe1 <- subset(qwe, qwe$churn== 1)
+select = c(qwe$age_months)
+
+p3<- ggplot(data = qwe1, aes(x=churn, y=age_months))+
+    geom_boxplot()+
+     ggtitle("Churn Customer Count by Age of Account")+
+    xlab("Churn: Yes") +
+    ylab("Count")
+    
 p3
-
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
