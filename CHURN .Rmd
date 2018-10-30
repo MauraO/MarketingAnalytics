@@ -18,6 +18,8 @@ library(dplyr)
 library(ggplot2)
 library(tidyverse)
 library(readxl)
+library(data.table)
+library(kableExtra)
 
 setwd("~/Desktop/BUS-256/MarketingAnalytics") #Set working directory for easier collaboration
 
@@ -70,22 +72,11 @@ Below is a description of the following variables:
  **3. Visualizations**
 ```{r message=FALSE, warning=FALSE}
 
-p1 <- ggplot(data = qwe, aes(x= qwe$chi_month0, fill = qwe$churn), position="dodge")+
-      ggtitle("CHI with churn month")+
-      xlim(0.5,200)+
-      # ylim(0, 200)+
-      # scale_y_continuous(limits = c(0,5))+
-      xlab("Happiness Index") + ylab("December Churn Rate")+
-      theme_minimal()+
-      geom_bar()
-p1
-
 p1 <- ggplot(data = qwe, aes(x=churn, y=chi_month0, fill=churn))+
     geom_boxplot()+
-     ggtitle("CHI by Churn Count")+
+     ggtitle("CHI Distribution by Churn Outcome")+
     xlab("Churn") +
     ylab("CHI")
-
 p1
 ```
 
@@ -98,9 +89,9 @@ qwe$churn <- as.factor(qwe$churn)
 Averagechurn
 p2<- ggplot(data = qwe, aes( x= qwe$age_months, y = Averagechurn))+
      xlim(0,60)+
-     #main = " Average Churn Rate vis a vis Customer Age"+
-     labs( x = " Customer Age in months"  , y = "Average Churn Rate")+
-     geom_bar(stat = "identity" , col = "red" , fill = "blue")
+     ggtitle("Average Churn Rate by Customer Age")+
+     labs( x = "Customer Age", y = "Average Churn Rate")+
+     geom_bar(stat = "identity", col = "red", fill = "blue")
 p2
 
 ```
@@ -112,8 +103,8 @@ qwe$churn[is.na(qwe$churn)] <- 0
 qwe1 <- subset(qwe, qwe$churn== 1)
 select = c(qwe$age_months)
 
-p3<- ggplot(data = qwe1, aes(x=churn, y=age_months))+
-    geom_boxplot()+
+p3<- ggplot(data = qwe1, aes(x=age_months, y=churn))+
+    geom_bar(stat="identity")+
      ggtitle("Churn Customer Count by Age of Account")+
     xlab("Churn: Yes") +
     ylab("Count")
@@ -141,7 +132,7 @@ test2 <- t.test(qwe[qwe$churn == "0",]$chi_month0,
 #Test 3
 test3 <- t.test(qwe[qwe$churn == "0",]$chi_change,
        qwe[qwe$churn == "1",]$chi_change,
-       paired=FALSE) #CHI Score Change, null rejected, p < 1.571e-08
+       paired=FALSE) #CHI Score Change, null rejected, p = 1.571e-08
 
 #Test 4
 test4 <- t.test(qwe[qwe$churn == "0",]$sc_month0,
@@ -182,6 +173,29 @@ test10 <- t.test(qwe[qwe$churn == "0",]$view_change,
 test11 <- t.test(qwe[qwe$churn == "0",]$days_login_change,
        qwe[qwe$churn == "1",]$days_login_change,
        paired=FALSE) #Views Change, null rejected, p = 5.215e-05
+
+results <- list(test1, test2, test3, test4, test5, test6, test7, test8, test9,
+                test10, test11)
+
+
+results<- as.data.table(lapply(results, unlist))
+
+results <- t(results)
+
+results <- as.data.frame(results)
+
+results <- subset(results, select = c(3,6,7))
+
+results$Variable_Name <-c("age_months", "chi_month0", "chi_change", "sc_month0", "sc_change", "sp_month0", "sp_change", "login_change", "blog_change", "view_change",
+                          "days_login_change")
+
+names(results)[1]<-paste("p-value")
+names(results)[2]<-paste("mean_for_churned_customers")
+names(results)[3]<-paste("mean_for_un-churned_customers")
+
+results <- results[,c(4,2,3,1)]
+
+kable(results)
 
 ```
 
