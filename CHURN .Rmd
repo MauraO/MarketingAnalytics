@@ -103,11 +103,11 @@ qwe$churn[is.na(qwe$churn)] <- 0
 qwe1 <- subset(qwe, qwe$churn== 1)
 select = c(qwe$age_months)
 
-p3<- ggplot(data = qwe1, aes(x=age_months, y=churn))+
-    geom_bar(stat="identity")+
+p3<- ggplot(data = qwe1, aes(x=age_months))+
+    geom_histogram()+
      ggtitle("Churn Customer Count by Age of Account")+
-    xlab("Churn: Yes") +
-    ylab("Count")
+    xlab("Account Age") +
+    ylab("Frequency")
     
 p3
 ```
@@ -115,7 +115,7 @@ p3
 Explanations
 
 **4. Statistical Analyses**
-```{r message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, hidden=TRUE}
 
 #T-Tests
 
@@ -174,9 +174,13 @@ test11 <- t.test(qwe[qwe$churn == "0",]$days_login_change,
        qwe[qwe$churn == "1",]$days_login_change,
        paired=FALSE) #Views Change, null rejected, p = 5.215e-05
 
+```
+
+**Results Table**
+```{r}
+
 results <- list(test1, test2, test3, test4, test5, test6, test7, test8, test9,
                 test10, test11)
-
 
 results<- as.data.table(lapply(results, unlist))
 
@@ -195,7 +199,7 @@ names(results)[3]<-paste("mean_for_un-churned_customers")
 
 results <- results[,c(4,2,3,1)]
 
-kable(results)
-
+results %>%
+  kable() %>%
+  kable_styling(c("striped", "bordered"))
 ```
-
