@@ -1,0 +1,285 @@
+---
+title: "QWE Churn Data Assignment"
+author: "Debarati Mazumdar Maura Oray"
+date: "10/26/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+```
+
+
+
+```{r setup, include=FALSE}
+
+#The required libraries - 
+library(dplyr)
+library(plyr)
+library(ggplot2)
+library(tidyverse)
+library(readxl)
+library(data.table)
+library(kableExtra)
+library(gridExtra)
+
+setwd("~/Desktop/BUS-256/MarketingAnalytics") #Set working directory for easier collaboration
+
+```
+
+**2. Data Description & Cleaning**
+```{r message=FALSE, warning=FALSE}
+
+qwe <- read_excel("Churn.xlsx", sheet = 2)
+summary(qwe)
+str(qwe)
+dim(qwe)
+View(qwe)
+
+#Change categorical variables to factor data type for churn yes - no
+qwe[3] <- lapply(qwe[3], factor)
+a <- sapply(qwe, function(x) sum(is.na(x)))
+a
+
+#Change some variable names
+
+names(qwe)[2]<-paste("age_months")
+names(qwe)[3]<-paste("churn")
+names(qwe)[4]<-paste("chi_month0")
+names(qwe)[5]<-paste("chi_change")
+names(qwe)[6]<-paste("sc_month0")
+names(qwe)[7]<-paste("sc_change")
+names(qwe)[8]<-paste("sp_month0")
+names(qwe)[9]<-paste("sp_change")
+names(qwe)[10]<-paste("login_change")
+names(qwe)[11]<-paste("blog_change")
+names(qwe)[12]<-paste("view_change")
+names(qwe)[13]<-paste("days_login_change")
+
+```
+Below is a description of the following variables:
+
+- Month 0: The starting point, month of December
+- 
+
+```{r message=FALSE, warning=FALSE}
+# Log for the data which has negative inputs 
+# qwe$chi_change<- log(qwe$chi_change)
+# qwe$sc_change <- log(qwe$sc_change)
+# qwe$login_change <- log(qwe$login_change)
+# qwe$blog_change <- log(qwe$blog_change)
+# qwe$view_change <- log(qwe$view_change)
+```
+
+ **3. Visualizations**
+```{r message=FALSE, warning=FALSE}
+
+p1 <- ggplot(data = qwe, aes(x=churn, y=chi_month0, fill=churn))+
+      geom_boxplot()+
+      ggtitle("CHI Distribution by Churn Outcome")+
+      xlab("Churn (0 = Did not churn, 1 = Churn)") +
+      ylab("CHI Score")
+p1
+```
+
+```{r message=FALSE, warning=FALSE}
+# Visualization of Average Churn Rate with customer age 
+# Replace missing value with 0 since this is a categorical value variable with 0 and 1 only 
+qwe$churn[is.na(qwe$churn)] <- 0
+Averagechurn<- mean(qwe$churn == 1)
+qwe$churn <- as.factor(qwe$churn)
+Averagechurn
+
+p2<- ggplot(data = qwe, aes( x= qwe$age_months, y = Averagechurn))+
+     xlim(0,60)+
+     ggtitle("Average Churn Rate by Customer Age")+
+     labs( x = "Customer Age", y = "Average Churn Rate")+
+     geom_bar(stat = "identity", fill = "#FF6666")+ 
+     theme_minimal()
+p2
+
+```
+
+```{r message=FALSE, warning=FALSE}
+#Boxplot visualization for churn count by account age
+
+qwe$churn[is.na(qwe$churn)] <- 0
+qwe1 <- subset(qwe, qwe$churn== 1)
+select = c(qwe$age_months)
+
+p3<- ggplot(data = qwe1, aes(x=age_months, y=churn))+
+     geom_bar(stat="identity" , fill = "blue")+
+     ggtitle("Churn Customer Count by Age of Account")+
+     xlab("Churn: Yes") +
+     ylab("Count")+
+     theme_minimal()
+    
+p3
+```
+
+Explanations
+
+**4. Statistical Analyses**
+```{r message=FALSE, warning=FALSE}
+
+#T-Tests
+
+#Test 1
+test1 <- t.test(qwe[qwe$churn == "0",]$age_months,
+       qwe[qwe$churn == "1",]$age_months,
+       paired=FALSE) #Account Age, null rejected, p = 0.003057
+
+#Test 2
+test2 <- t.test(qwe[qwe$churn == "0",]$chi_month0,
+       qwe[qwe$churn== "1",]$chi_month0,
+       paired=FALSE) #CHI Score, Month 0, null rejected, p = 2.097e-13
+
+#Test 3
+test3 <- t.test(qwe[qwe$churn == "0",]$chi_change,
+       qwe[qwe$churn == "1",]$chi_change,
+       paired=FALSE) #CHI Score Change, null rejected, p = 1.571e-08
+
+#Test 4
+test4 <- t.test(qwe[qwe$churn == "0",]$sc_month0,
+       qwe[qwe$churn == "1",]$sc_month0,
+       paired=FALSE) #Support Call Month 0, null rejected, p = 6.281e-08
+
+#Test 5
+test5 <- t.test(qwe[qwe$churn == "0",]$sc_change,
+       qwe[qwe$churn == "1",]$sc_change,
+       paired=FALSE) #Support Call Change, fail to reject null, p = 0.5278
+
+#Test 6
+test6 <- t.test(qwe[qwe$churn == "0",]$sp_month0,
+       qwe[qwe$churn == "1",]$sp_month0,
+       paired=FALSE) #Support Priority Month 0, null rejected, p = 4.381e-07
+
+#Test 7
+test7 <- t.test(qwe[qwe$churn == "0",]$sp_change,
+       qwe[qwe$churn == "1",]$sp_change,
+       paired=FALSE) #Support Priority Change, fail to reject null, p = 0.5218
+
+#Test 8
+test8 <- t.test(qwe[qwe$churn == "0",]$login_change,
+       qwe[qwe$churn == "1",]$login_change,
+       paired=FALSE) #Login Change, null rejected, p = 0.0004037
+
+#Test 9
+test9 <- t.test(qwe[qwe$churn == "0",]$blog_change,
+       qwe[qwe$churn == "1",]$blog_change,
+       paired=FALSE) #Blog Change, null rejected, p = 0.01158
+
+#Test 10
+test10 <- t.test(qwe[qwe$churn == "0",]$view_change,
+       qwe[qwe$churn == "1",]$view_change,
+       paired=FALSE) #Views Change, null rejected, p = 0.05631 (borderline)
+
+#Test 11
+test11 <- t.test(qwe[qwe$churn == "0",]$days_login_change,
+       qwe[qwe$churn == "1",]$days_login_change,
+       paired=FALSE) #Views Change, null rejected, p = 5.215e-05
+
+```
+
+**Results Table**
+```{r message=FALSE, warning=FALSE}
+
+results <- list(test1, test2, test3, test4, test5, test6, test7, test8, test9,
+                test10, test11)
+
+results<- as.data.table(lapply(results, unlist))
+
+results <- t(results)
+
+results <- as.data.frame(results)
+
+results <- subset(results, select = c(3,6,7))
+
+results$Variable_Name <-c("age_months", "chi_month0", "chi_change", "sc_month0", "sc_change", "sp_month0", "sp_change", "login_change", "blog_change", "view_change",
+                          "days_login_change")
+
+names(results)[1]<-paste("p-value")
+names(results)[2]<-paste("mean_for_churned_customers")
+names(results)[3]<-paste("mean_for_un-churned_customers")
+
+results <- results[,c(4,2,3,1)]
+
+results %>%
+  kable() %>%
+  kable_styling(c("striped", "bordered"))
+
+```
+
+**6. Logistic Regression**
+```{r message=FALSE, warning=FALSE}
+
+log_churn_reg <- glm(churn ~ age_months + chi_month0 + chi_change +                             sc_month0 + sc_change + sp_month0 + sp_change + login_change +                        blog_change + view_change + days_login_change, data = qwe, family =                   binomial)
+
+summary(log_churn_reg)
+
+```
+Explanations here
+
+**7. Customer Segmentation**
+```{r message=FALSE, warning=FALSE}
+#a. Apriori segmentation for customer age with all factors 
+# Create Segments 
+
+qwe$group_customer_age <- with(qwe, ifelse(age_months >= 0 & age_months <=6, "New", ifelse(age_months > 6 & age_months <= 12, "Medium", ifelse(age_months > 12 & age_months <= 67, "Old", "None"))))
+
+qwe$group_customer_age <- factor(qwe$group_customer_age, levels=c("New", "Medium", "Old")) 
+                        
+```
+
+Refactor Group Customer Age levels to have New-Medium-Old instead of Medium-New-Old
+
+```{r message=FALSE, warning=FALSE}
+#b. Logistic Regression on Customer Age Segments
+
+log_age_new <- glm(churn ~ group_customer_age + chi_month0 + chi_change +                             sc_month0 + sc_change + sp_month0 + sp_change + login_change +                        blog_change + view_change + days_login_change, data = qwe, family =                   binomial)
+
+summary(log_age_new)
+
+```
+
+
+
+
+```{r} 
+# codes from class 
+exp(0)/(exp(0) +1)
+plogis(-Inf)
+plogis(2) 
+plogis(-0.2) 
+log(0.5 / (1-0.5)) 
+log(0.88 / (1-0.88))
+qlogis(0.88) 
+
+pass.df <- read.csv("http://goo.gl/J8MH6A")
+pass.df$Promo <- factor(pass.df$Promo, levels=c("NoBundle", "Bundle"))
+str(pass.df)
+summary(pass.df)
+
+### Let's look at the two-way frequency table between promotion and pass status
+table(pass.df$Promo, pass.df$Pass)
+
+### One way to interpret this table is that 58% (919/670+919) customers who bought a pass bought on promotion.
+### Another way to see it is that 45% (670/670+812) of customers on no-promotion bought the pass, whereas
+### 55% (919/755 + 919) of customers who saw the promotion bought the pass. Is seeing the promotion leading 
+### to higher sales?
+
+# initial logistic regression model
+pass.m1 <- glm(Pass ~ Promo, data=pass.df, family=binomial)
+summary(pass.m1)
+
+#### Getting the 95% confidence interval on the log odds-ratio
+confint(pass.m1)
+
+#### Getting the 95% confidence interval on the odds-ratio
+exp(confint(pass.m1))
+
+
+
+
+```
+
