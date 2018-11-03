@@ -1,21 +1,17 @@
 ---
 title: "QWE Churn Data Assignment"
-author: "Debarati Mazumdar Maura Oray"
+author: "Debarati Mazumdar, Maura Oray"
 date: "10/26/2018"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-
-```
-
+**Introduction**
 
 
 ```{r setup, include=FALSE}
 
 #The required libraries - 
 library(dplyr)
-library(plyr)
 library(ggplot2)
 library(tidyverse)
 library(readxl)
@@ -34,15 +30,13 @@ qwe <- read_excel("Churn.xlsx", sheet = 2)
 summary(qwe)
 str(qwe)
 dim(qwe)
-View(qwe)
 
 #Change categorical variables to factor data type for churn yes - no
 qwe[3] <- lapply(qwe[3], factor)
 a <- sapply(qwe, function(x) sum(is.na(x)))
 a
 
-#Change some variable names
-
+#Change variable names
 names(qwe)[2]<-paste("age_months")
 names(qwe)[3]<-paste("churn")
 names(qwe)[4]<-paste("chi_month0")
@@ -57,39 +51,47 @@ names(qwe)[12]<-paste("view_change")
 names(qwe)[13]<-paste("days_login_change")
 
 ```
-Below is a description of the following variables:
-
-- Month 0: The starting point, month of December
-- 
-
-```{r message=FALSE, warning=FALSE}
-# Log for the data which has negative inputs 
-# qwe$chi_change<- log(qwe$chi_change)
-# qwe$sc_change <- log(qwe$sc_change)
-# qwe$login_change <- log(qwe$login_change)
-# qwe$blog_change <- log(qwe$blog_change)
-# qwe$view_change <- log(qwe$view_change)
-```
+Explanation
 
  **3. Visualizations**
 ```{r message=FALSE, warning=FALSE}
 
-p1 <- ggplot(data = qwe, aes(x=churn, y=chi_month0, fill=churn))+
-      geom_boxplot()+
-      ggtitle("CHI Distribution by Churn Outcome")+
-      xlab("Churn (0 = Did not churn, 1 = Churn)") +
-      ylab("CHI Score")
+p1 <- ggplot(data = qwe, aes(x=chi_month0, fill=churn))+
+      geom_histogram()+
+      ggtitle("CHI Score Distribution by Churn Outcome")+
+      xlab("CHI Score") +
+      ylab("Frequency")+
+      facet_grid(~churn)
 p1
+
+p2 <- ggplot(data = qwe, aes(x=churn, y=chi_month0, fill=churn))+
+      geom_boxplot()+
+      ggtitle("CHI Score by Churn")+
+      xlab("Churn") +
+      ylab("CHI Score")
+p2
+
 ```
+The above visualizations depict the CHI score by churn outcome. The split histogram clearly shows that there are more customers who do not churn than those who do. In the histogram, you can see that the majority of those who do not churn (6024 observations) are concentrated in the 0 range, meaning that they have a very low CHI score. We were curious why this would be, and so we ran a correlation on CHI score and the age of the account, since we hypothesized that the newer the account is, the less time the customer would have in getting acclimated to the account features, customer service, etc. The correlation was a positive 0.3, meaning that when the account age increases, the CHI score increases as well. 
+
+Other than the clear concentration of CHI score 0 in the population that did not churn, we see a fairly normal distribution of scores, with a mean value of 88.61. The mean account age is 13.82, showing the account age is just a little over 1 year.
+
+In the visualization for those who did churn, there are 323 observations. Once again, the majority of those that churn are concentrated in the 0 CHI score range, showing a right skewed distribution. In this population, the median score is 57 and the median account age is 13. We used the median instead of mean since the distribution is skewed.
+
+We also decided to show a boxplot visualization because it clearly depicts the CHI scores of both churning and not churning. Here you can see that those who do churn have lower average CHI scores than those who do not.
+
+In our opinion, because there is a correlation between account age and CHI score, and that in both distributions the mean/median scores lie around 0, QWE should focus on this segment. 
 
 ```{r message=FALSE, warning=FALSE}
 # Visualization of Average Churn Rate with customer age 
 # Replace missing value with 0 since this is a categorical value variable with 0 and 1 only 
-qwe$churn[is.na(qwe$churn)] <- 0
-Averagechurn<- mean(qwe$churn == 1)
-qwe$churn <- as.factor(qwe$churn)
+
+qwe$churn <- as.numeric(as.character(qwe$churn))
+
+Averagechurn<- mean(qwe$churn)
 Averagechurn
 
+#Code for histogram that works
 p2<- ggplot(data = qwe, aes( x= qwe$age_months, y = Averagechurn))+
      xlim(0,60)+
      ggtitle("Average Churn Rate by Customer Age")+
@@ -98,31 +100,39 @@ p2<- ggplot(data = qwe, aes( x= qwe$age_months, y = Averagechurn))+
      theme_minimal()
 p2
 
+#This one aggregates age_months (but doesn't calculate churn)
+qwe2 = qwe %>%
+  group_by(age_months, churn)%>%
+  summarise(age_months = count(age_months))
+
+
+
 ```
 
+
+
+
 ```{r message=FALSE, warning=FALSE}
-#Boxplot visualization for churn count by account age
+#Histogram for churn count by account age
 
 qwe$churn[is.na(qwe$churn)] <- 0
 qwe1 <- subset(qwe, qwe$churn== 1)
 select = c(qwe$age_months)
 
-p3<- ggplot(data = qwe1, aes(x=age_months, y=churn))+
-     geom_bar(stat="identity" , fill = "blue")+
-     ggtitle("Churn Customer Count by Age of Account")+
-     xlab("Churn: Yes") +
-     ylab("Count")+
+p4 <- ggplot(data = qwe1, aes(x=age_months))+
+     geom_histogram(fill="#7D214B") +
+     ggtitle("Churn Customer Count by Age of Account") +
+     xlab("Customer Account Age") +
+     ylab("Count")
      theme_minimal()
-    
-p3
-```
+p4
 
-Explanations
+```
+In this visualization, we can see that the count of churned accounts is right-skewed, meaning that the majority of accounts lie in the lower age range. As we saw previously, the median account age is around 13 months, which again is shown in the above plot. The count of churned accounts decreases as the account age increases, which intuitively makes sense. Again, we suggest that QWE focuses on new accounts because they churn out most often. 
 
 **4. Statistical Analyses**
+**a. T-tests**
 ```{r message=FALSE, warning=FALSE}
-
-#T-Tests
 
 #Test 1
 test1 <- t.test(qwe[qwe$churn == "0",]$age_months,
@@ -181,11 +191,11 @@ test11 <- t.test(qwe[qwe$churn == "0",]$days_login_change,
 
 ```
 
-**Results Table**
+**b. Results Table**
 ```{r message=FALSE, warning=FALSE}
 
 results <- list(test1, test2, test3, test4, test5, test6, test7, test8, test9,
-                test10, test11)
+                test10, test11) 
 
 results<- as.data.table(lapply(results, unlist))
 
@@ -206,80 +216,54 @@ results <- results[,c(4,2,3,1)]
 
 results %>%
   kable() %>%
-  kable_styling(c("striped", "bordered"))
+  kable_styling(c("striped", "bordered", "condensed", "responsive"))
 
 ```
+After performing independent t-tests on the 11 variables, we found that the following variables are significant: account age (p < 0.01), CHI score at month 0 (p < 0.001), change in CHI score (p < 0.001), support cases at month 0 (p < 0.001), support priority at month 0 (p < 0.001), login change (p < 0.001), blog change (p < 0.01), view change (marginally signficant, p < 0.1), and finally days since login change (p < 0.001). 
+
+The null hypothesis in each test is that there is a difference between the means of customers who churned and customers who did not. We reject the null hypothesis for each variable (that the means are different between the groups) except for support case change and support priority change, which shows that we fail to reject the null hypothesis. The results in support case at month 0 and support priority change are not significant, thus we can say that the differences between the means is negligible.
+
+The most significant difference in means from the CHI score in month 0 for churned and un-churned customers. It also has the lowest p-value (p < 0.001), which is significant at the 99% confidence level. Unsurprisingly, the CHI score is higher for un-churned customers (88.6) than churned (63.27), and as was mentioned in the case, CHI combines multiple factors related to customer happiness. 
+
+In addition to CHI, CHI score change and support case change are significant as well at the 99% confidence interval (p < 0.001). Like the CHI score in month 0, CHI score change being signficant intuitively makes sense. If, for example, the score change is negative, that means that the CHI Score was higher in November than December for a customer. This could be a large indicator that the customer is becoming unhappy with their account and could be more likely to leave. The mean for un-churned customers is 5.53 and -3.74 for churned. This indicates that un-churned customers became 5.53 points happier in December than November, but that un-churned customers became 3.74 points **less** happy.
+
+Support case at month 0 is also highly significant, which again makes sense as we assume that if a customer opens more support cases, they have issues with their account. The higher the number, the more cases that a customer has opne. Unsurprisingly, un-churned customers have less cases open (0.37) than churned customers (0.74). 
+
+Finally, support priority at month 0 and days since last login are also highly significant at the 99% confidence level (p < 0.001). If a customer has a higher support priority on their support case, it could indicate that the problem is serious and needs quick attention. We assume that the more support cases that one has, the higher priority, and after running a correlation on the two variables, we see that they are moderately correlated at 0.65, and that un-churned customers have a lower mean support priority (0.5) than churned (0.83). Days since last login change indicates that if the value is negative, then customers logged into their accounts less in December. Again, we would expect that churned customers would have a lower mean value than un-churned, and this is the case.
+
+The managerial takeaway for the t-tests would be that the company should focus on CHI scores, the change in CHI score, number of support cases open, support priority, and the change in days since last login. If the change is significant across one or a few of these variables, and the change is negative, then managers should pay close attention to these accounts.
 
 **6. Logistic Regression**
 ```{r message=FALSE, warning=FALSE}
 
-log_churn_reg <- glm(churn ~ age_months + chi_month0 + chi_change +                             sc_month0 + sc_change + sp_month0 + sp_change + login_change +                        blog_change + view_change + days_login_change, data = qwe, family =                   binomial)
+log_churn_reg <- glm(churn ~ age_months + chi_month0 + chi_change + sc_month0 + sc_change + sp_month0 + sp_change + login_change + blog_change + view_change + days_login_change, data = qwe, family = binomial)
 
 summary(log_churn_reg)
 
 ```
-Explanations here
+After performing the logistic regression, we can see that the most significant factors in churn are days since last login change (p < 0.001), CHI score month 0 (p < 0.001), CHI score change (p < 0.001), followed by change in views (p < 0.01), and age of account (p < 0.05), with support case month 0 being marginally significant (p < 0.1). 
+
+From the above output, Aggarwal and Wall can decipher the most significant factors in churn and decide to focus on them. For example, improving overall customer service and technology could have a positive affect on customers opening support cases, in that they may open less cases. Days since last login is also a significant factor - if customers become disinterested in QWE's service or if the site becomes problematic then they may login less. Again, offering incentives to customers to login and access their accounts could be useful. Views are one factor that may be within the purview of QWE, since they are a company that manages other businesses' website.
 
 **7. Customer Segmentation**
+**a. Apriori Segmentation for customer age**
 ```{r message=FALSE, warning=FALSE}
-#a. Apriori segmentation for customer age with all factors 
-# Create Segments 
 
 qwe$group_customer_age <- with(qwe, ifelse(age_months >= 0 & age_months <=6, "New", ifelse(age_months > 6 & age_months <= 12, "Medium", ifelse(age_months > 12 & age_months <= 67, "Old", "None"))))
 
-qwe$group_customer_age <- factor(qwe$group_customer_age, levels=c("New", "Medium", "Old")) 
+qwe$group_customer_age <- factor(qwe$group_customer_age, levels=c("New", "Medium", "Old"))
                         
 ```
 
-Refactor Group Customer Age levels to have New-Medium-Old instead of Medium-New-Old
-
+**b. Logistic Regression on Customer Age Segments**
 ```{r message=FALSE, warning=FALSE}
-#b. Logistic Regression on Customer Age Segments
 
-log_age_new <- glm(churn ~ group_customer_age + chi_month0 + chi_change +                             sc_month0 + sc_change + sp_month0 + sp_change + login_change +                        blog_change + view_change + days_login_change, data = qwe, family =                   binomial)
+log_age <- glm(churn ~ group_customer_age + chi_month0 + chi_change +                             sc_month0 + sc_change + sp_month0 + sp_change + login_change +                        blog_change + view_change + days_login_change, data = qwe, family =                   binomial)
 
-summary(log_age_new)
-
-```
-
-
-
-
-```{r} 
-# codes from class 
-exp(0)/(exp(0) +1)
-plogis(-Inf)
-plogis(2) 
-plogis(-0.2) 
-log(0.5 / (1-0.5)) 
-log(0.88 / (1-0.88))
-qlogis(0.88) 
-
-pass.df <- read.csv("http://goo.gl/J8MH6A")
-pass.df$Promo <- factor(pass.df$Promo, levels=c("NoBundle", "Bundle"))
-str(pass.df)
-summary(pass.df)
-
-### Let's look at the two-way frequency table between promotion and pass status
-table(pass.df$Promo, pass.df$Pass)
-
-### One way to interpret this table is that 58% (919/670+919) customers who bought a pass bought on promotion.
-### Another way to see it is that 45% (670/670+812) of customers on no-promotion bought the pass, whereas
-### 55% (919/755 + 919) of customers who saw the promotion bought the pass. Is seeing the promotion leading 
-### to higher sales?
-
-# initial logistic regression model
-pass.m1 <- glm(Pass ~ Promo, data=pass.df, family=binomial)
-summary(pass.m1)
-
-#### Getting the 95% confidence interval on the log odds-ratio
-confint(pass.m1)
-
-#### Getting the 95% confidence interval on the odds-ratio
-exp(confint(pass.m1))
-
-
-
+summary(log_age)
 
 ```
+After splitting the customer account age into groups New, Medium, and Old, we refactored the levels before running the logistic regression so that New would be the baseline. 
+
+**7. Conclusion**
 
